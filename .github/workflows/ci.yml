@@ -1,0 +1,135 @@
+name: CI
+
+on:
+  push:
+    branches: [ "main" ]
+  pull_request:
+    branches: [ "main" ]
+
+# Sets permissions of the GITHUB_TOKEN to allow deployment to GitHub Pages
+permissions:
+  contents: write
+  pages: write
+  id-token: write
+
+jobs:
+
+  test:
+    name: Run tests
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: |
+            3.11
+
+      - name: Set up uv
+        uses: astral-sh/setup-uv@v1
+
+      - name: Create venv and install dependencies
+        run: |
+          python -m venv .venv
+          source .venv/bin/activate
+          uv pip install -e ".[dev,docs]"
+
+      - name: Run pre-commit
+        uses: pre-commit/action@v3.0.1
+
+      - name: Run tests
+        run: |
+          source .venv/bin/activate
+          # Set PYTHONPATH to include the src directory
+          export PYTHONPATH=$PYTHONPATH:$(pwd)/src
+          # Run pytest with coverage using the Python module syntax
+          python -m pytest tests/unit tests/integration tests/e2e \
+            --cov=src \
+            --cov-report=term \
+            --cov-report=xml:coverage.xml \
+            --cov-config=pyproject.toml
+
+          # Print coverage report
+          python -m coverage report
+
+      # - name: Upload coverage to Codecov
+      #   if: |
+      #     ${{ github.actor != 'nektos/act' }}
+      #   uses: codecov/codecov-action@v4
+      #   with:
+      #     token: |
+      #       ${{ secrets.CODECOV_TOKEN }}
+      #     file: ./coverage.xml
+      #     fail_ci_if_error: true
+
+  type-check:
+    name: Type check
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: |
+            3.11
+
+      - name: Set up uv
+        uses: astral-sh/setup-uv@v1
+
+      - name: Create venv and install dependencies
+        run: |
+          python -m venv .venv
+          source .venv/bin/activate
+          uv pip install -e ".[dev]"
+
+      - name: Run mypy
+        run: |
+          source .venv/bin/activate
+          uv run --python .venv/bin/python mypy src/ tests/
+
+  docs:
+    name: Build docs
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: |
+            3.11
+
+      - name: Set up uv
+        uses: astral-sh/setup-uv@v1
+
+      - name: Create venv and install dependencies
+        run: |
+          python -m venv .venv
+          source .venv/bin/activate
+          uv pip install -e ".[docs]"
+
+      - name: Build docs
+        run: |
+          source .venv/bin/activate
+          echo "Building documentation..."
+
+          echo "Building api reference..."
+          python scripts/gen_ref_pages.py
+
+          echo "Copying project files..."
+          mkdir -p docs/project-files
+          cp -v LICENSE README.md DEV-README.md docs/project-files/
+
+          echo "Building site..."
+          mkdocs build --strict
+
+      - name: Deploy to GitHub Pages
+        if: |
+          ${{ github.event_name == 'push' && github.ref == 'refs/heads/main' && github.actor != 'nektos/act' }}
+        uses: peaceiris/actions-gh-pages@v3
+        with:
+          github_token: |
+            ${{ github.token }}
+          publish_dir: ./site

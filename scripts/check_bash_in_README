@@ -1,0 +1,3 @@
+#!/usr/bin/env bash
+
+./scripts/check_md_bash --ignore "git*" --ignore "cd*" --ignore "pip*" --ignore "task*" --ignore "lumberjack \[OPTIONS\]*" --ignore "*nginx*" README.md >/dev/null

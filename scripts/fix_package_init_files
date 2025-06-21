@@ -1,0 +1,103 @@
+#!/usr/bin/env python3
+"""Clean up __init__.py files by removing imports and __all__ assignments.
+
+I'm tired of Cascade treating the application like a library and exporting modules,
+so this script attempts to clean the mess Cascade is repeatedly creating.
+"""
+
+import ast
+import sys
+from pathlib import Path
+
+def clean_init_file(file_path: Path) -> bool:
+    """Clean an __init__.py file by removing imports and __all__ assignments.
+
+    Args:
+        file_path: Path to the __init__.py file
+
+    Returns:
+        bool: True if the file was modified, False otherwise
+    """
+    try:
+        content = file_path.read_text(encoding='utf-8')
+    except UnicodeDecodeError:
+        print(f"Skipping non-text file: {file_path}", file=sys.stderr)
+        return False
+
+    try:
+        # Parse the file into an AST
+        tree = ast.parse(content, str(file_path))
+    except SyntaxError as e:
+        print(f"Syntax error in {file_path}: {e}", file=sys.stderr)
+        return False
+
+    # Keep only non-import and non-__all__ nodes
+    new_nodes = []
+    modified = False
+
+    for node in tree.body:
+        # Skip import and from...import statements
+        if isinstance(node, (ast.Import, ast.ImportFrom)):
+            modified = True
+            continue
+
+        # Skip __all__ assignments and type declarations
+        if (isinstance(node, (ast.Assign, ast.AnnAssign)) and
+            ((isinstance(node, ast.Assign) and
+              any(isinstance(target, ast.Name) and target.id == '__all__'
+                  for target in node.targets)) or
+             (isinstance(node, ast.AnnAssign) and
+              isinstance(node.target, ast.Name) and
+              node.target.id == '__all__'))):
+            modified = True
+            continue
+
+        new_nodes.append(node)
+
+    if not modified:
+        return False
+
+    # Reconstruct the file content
+    new_content = []
+    last_lineno = 0
+
+    for node in new_nodes:
+        # Add any comments or whitespace between nodes
+        if hasattr(node, 'lineno') and node.lineno > last_lineno + 1:
+            new_content.append('\n' * (node.lineno - last_lineno - 1))
+
+        # Convert the node back to source
+        new_content.append(ast.unparse(node))
+        last_lineno = getattr(node, 'end_lineno', last_lineno)
+
+    # Add a final newline if the file ends with one
+    if content.endswith('\n'):
+        new_content.append('')
+
+    # Write the cleaned content back to the file
+    file_path.write_text('\n'.join(new_content), encoding='utf-8')
+    return True
+
+def main() -> None:
+    """Main function to clean all __init__.py files in src/ and tests/."""
+    root_dir = Path(__file__).parent.parent
+    modified_count = 0
+
+    for search_dir in ['src', 'tests']:
+        search_path = root_dir / search_dir
+        if not search_path.exists():
+            print(f"Directory not found: {search_path}", file=sys.stderr)
+            continue
+
+        for init_file in search_path.rglob('**/__init__.py'):
+            if clean_init_file(init_file):
+                print(f"Cleaned: {init_file.relative_to(root_dir)}")
+                modified_count += 1
+
+    if modified_count == 0:
+        print("No __init__.py files needed cleaning.")
+    else:
+        print(f"\nCleaned {modified_count} __init__.py files.")
+
+if __name__ == "__main__":
+    main()

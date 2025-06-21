@@ -1,0 +1,102 @@
+site_name: KDE Colors Documentation
+site_description: Documentation for KDE Colors
+site_author: Roy Wright
+repo_url: https://github.com/royw/kde_colors
+repo_name: royw/kde_colors
+
+theme:
+  name: material
+  features:
+    - navigation.instant
+    - navigation.tracking
+    - navigation.tabs
+    - navigation.sections
+    - navigation.expand
+    - navigation.indexes
+    - navigation.sticky
+    - navigation.path
+    - toc.follow
+    - search.suggest
+    - search.highlight
+    - content.tabs.link
+    - content.code.annotation
+    - content.code.copy
+  palette:
+    - scheme: default
+      toggle:
+        icon: material/brightness-7
+        name: Switch to dark mode
+    - scheme: slate
+      toggle:
+        icon: material/brightness-4
+        name: Switch to light mode
+  icon:
+    repo: fontawesome/brands/github
+
+strict: false  # Don't fail build for warnings like missing files
+
+plugins:
+  - search
+  - git-revision-date-localized:
+      type: timeago
+      timezone: America/Chicago
+      locale: en
+  - autorefs
+  - gen-files:
+      scripts:
+        - scripts/gen_ref_pages.py
+  - literate-nav:
+      nav_file: SUMMARY.md
+  - mermaid2:
+      version: '11.6.0'
+  - mkdocstrings:
+      default_handler: python
+      handlers:
+        python:
+          paths: [src]
+          options:
+            docstring_style: google
+            show_source: true
+            show_root_heading: true
+            show_root_full_path: true
+            show_if_no_docstring: true
+            filters: ["!^_"]
+            heading_level: 2
+
+markdown_extensions:
+  - pymdownx.highlight:
+      default_lang: python
+      use_pygments: true
+      anchor_linenums: true
+      line_spans: __span
+      pygments_lang_class: true
+  - pymdownx.inlinehilite
+  - pymdownx.snippets
+  - pymdownx.superfences:
+      custom_fences:
+        - name: mermaid
+          class: mermaid
+          format: !!python/name:mermaid2.fence_mermaid_custom
+  - admonition
+  - pymdownx.details
+  - pymdownx.tabbed:
+      alternate_style: true
+  - tables
+  - toc:
+      permalink: true
+
+nav:
+  - Home: index.md
+  - Architecture: architecture.md
+  - API Reference: reference/
+
+  - Project Information:
+    - Project Overview (README.md): project-files/README.md
+    - Developer Guide (DEV-README.md): project-files/DEV-README.md
+    - Software Requirements Specification: software-requirements-specification.md
+    - Software Design Document: software-design-document.md
+    - Test Design Document: test-design-document.md
+    - Reference Cross Check: reference-cross-check.md
+
+  - Miscellany:
+    - License: project-files/LICENSE

@@ -1,0 +1,1221 @@
+# This Taskfile provides commands for managing the project.
+#
+# This project uses Task (https://taskfile.dev) for task automation.
+# Uses uv (https://github.com/astral-sh/uv) for project management
+#
+# Python Version Management:
+# - Supported Python versions are listed in .python-versions
+# - Default Python version is set in .python-version
+# - Each Python version has its own virtual environment (.venv-X.Y)
+# - .venv symlink points to the default version's environment
+# - Tasks should always use .venv/bin/python except when managing environments
+# - Available Commands:
+# 1. Add a version:    task python:add -- 3.11
+# 2. List versions:    task python:list-installed
+# 3. Set default:      task python:set-default -- 3.11
+# 4. Remove version:   task python:remove -- 3.11
+#
+# Package Management:
+# - task add: Install packages using uv add
+# - task remove: Remove packages using uv remove
+#
+# Virtual Environment Management:
+# - task setup: Set up development environment
+# - task venvs:update: Update all virtual environments
+# - task venvs:update:dev: Update only development environment
+# - task venvs:upgrade: Upgrade all dependencies to latest versions
+# - task venvs:clean: Remove all virtual environments
+#
+# Testing:
+# - task test: Run tests using development Python version
+# - task test:coverage: Run tests with coverage report
+# - task test:pythons: Run tests across all supported Python versions
+#
+# Code Quality:
+# - task lint: Run all code quality checks
+# - task lint:ruff: Run ruff linter
+# - task lint:mypy: Run mypy type checker
+# - task lint:deadcode: Check for unused code
+# - task format: Format code with ruff
+# - task metrics: Run code quality metrics
+# - task spell: Run codespell checks
+#
+# Documentation:
+# - task docs: Serve documentation locally
+# - task docs:build: Build documentation
+#
+# Build and Publish:
+# - task build: Build package distribution (source and binary)
+# - task publish:pypi: Publish to PyPI
+# - task publish:test-pypi: Publish to Test PyPI
+#
+# CI/CD:
+# - task ci: Run all CI checks (lint, test, coverage, docs, build)
+
+version: '3'
+
+vars:
+  # Minimum required test coverage percentage
+  COVERAGE_MIN: 60
+
+tasks:
+  # Internal tasks
+  check:venv:
+    internal: true
+    silent: true
+    status:
+      - test -d .venv
+    cmds:
+      - task: setup
+
+  check:virtual-env:
+    desc: Check if VIRTUAL_ENV matches development environment
+    vars:
+      DEV_VERSION:
+        sh: cat .python-version
+      EXPECTED_VENV: '{{.USER_WORKING_DIR}}/.venv-{{.DEV_VERSION}}'
+    cmds:
+      - |
+        if [ -n "$VIRTUAL_ENV" ] && [ "$VIRTUAL_ENV" != "{{.EXPECTED_VENV}}" ]; then
+          echo "Error: VIRTUAL_ENV is set to $VIRTUAL_ENV but should be {{.EXPECTED_VENV}}"
+          echo "To fix this, run: source .venv/bin/activate"
+          exit 1
+        fi
+    silent: true
+
+  # Core tasks
+  default:
+    desc: Show available tasks
+    summary: |
+      Show available tasks
+
+      Examples:
+        # List all available tasks
+        task
+        # or
+        task --list-all --sort alphanumeric
+    cmds:
+      - task --list-all --sort alphanumeric
+    silent: true
+
+  # CI/CD
+  ci:
+    desc: Run all CI checks (lint, test, coverage, security, docs, build)
+    summary: |
+      Run all CI checks (lint, test, coverage, security, docs, build)
+
+      Before running this task, make sure your VIRTUAL_ENV environment variable
+      is either unset or matches your development Python version. If you see
+      an error about VIRTUAL_ENV mismatch, run: unset VIRTUAL_ENV
+
+      Examples:
+        # Run all CI checks
+        task ci
+    deps:
+      - check:venv
+      - check:virtual-env
+    cmds:
+      - scripts/fix_package_init_files
+      - task: pre-commit
+      - task: lint
+      - task: lint:security
+      - task: metrics
+      - task: test:coverage
+      - task: lint:deadcode
+      - task: lint:techdebt
+      - task: docs:build
+      - task: build
+
+  # Environment management
+  setup:
+    desc: Set up development environment
+    summary: |
+      Set up development environment (creates virtual environments for all Python versions)
+      and ensures the .venv symlink points to the default version's environment.
+
+      Examples:
+        # Set up all environments
+        task setup
+    silent: true
+    vars:
+      # Space-separated list of supported Python versions from .python-versions
+      PYTHON_VERSIONS:
+        sh: cat .python-versions | tr '\n' ' ' | sed 's/ $//'  # Convert newlines to spaces and trim trailing space
+      DEFAULT_VERSION:
+        sh: cat .python-version
+    cmds:
+      # Clean up any existing virtual environments
+      - rm -rf .venv .venv-*
+
+      # Install required Python versions if not already installed
+      - uv python install {{.PYTHON_VERSIONS}}
+
+      # Create virtual environments for each Python version
+      - for: { var: PYTHON_VERSIONS }
+        task: setup:venv
+        vars:
+          VERSION: "{{.ITEM}}"
+
+      # Update .venv symlink to point to the default version's environment
+      - ln -sfn .venv-{{.DEFAULT_VERSION}} .venv
+
+      # Install development dependencies in the default environment
+      - task: venvs:update:dev
+
+      # Install pre-commit hooks
+      - pre-commit install
+
+      # Show setup summary
+      - task: python:list-installed
+      - |
+        echo ""
+        echo "Setup complete."
+        echo ""
+        echo "Virtual environments:"
+        ls -Ald .venv .venv-*
+        echo ""
+        echo "Default Python version: {{.DEFAULT_VERSION}}"
+        echo "Active virtual environment: $(readlink -f .venv)"
+        echo ""
+        echo "Activate the environment with: source .venv/bin/activate"
+        echo ""
+        echo "Optionally, to see the list of available tasks, run: task"
+        echo ""
+        echo "To switch Python versions, use: task python:set-default -- <version>"
+        echo "Available versions: {{.PYTHON_VERSIONS}}"
+
+  python:list:
+    desc: List Python versions in the project
+    summary: |
+      List Python versions from .python-versions and mark the default version
+
+      Examples:
+        # List Python versions
+        task python:list
+    silent: true
+    vars:
+      DEFAULT_VERSION:
+        sh: cat .python-version
+    cmds:
+      - |
+        echo "Python versions:"
+        while IFS= read -r ver; do
+          if [ "$ver" = "{{.DEFAULT_VERSION}}" ]; then
+            echo "$ver (default)"
+          else
+            echo "$ver"
+          fi
+        done < .python-versions
+
+  python:list-installed:
+    desc: List installed Python versions
+    summary: |
+      List Python versions installed in the system
+
+      Examples:
+        # List installed Python versions
+        task python:list-installed
+
+        # Output example:
+        3.10
+        3.11
+        3.12 (default)
+        3.13
+        3.8
+    silent: true
+    cmds:
+      - |
+        echo "Installed Python versions:"
+        DEV_VER=$(cat .python-version)
+        uv python list --only-installed | grep -o '.*/python[0-9]\+\.[0-9]\+' | \
+        sed -E 's|.*/python([0-9]+\.[0-9]+).*|\1|' | sort -u | \
+        while read ver; do \
+          if [ "$ver" = "$DEV_VER" ]; then
+            echo "$ver (default)"
+          else
+            echo "$ver"
+          fi
+        done
+
+  python:update-venv:
+    internal: true
+    desc: Update virtual environment symlink to match .python-version
+    summary: |
+      Internal task to update the .venv symlink to point to the current default Python version's environment.
+      This task is called by other tasks that modify the default Python version.
+    silent: true
+    cmds:
+      - |
+        VER=$(cat .python-version)
+        ln -sf "{{.USER_WORKING_DIR}}/.venv-$VER" "{{.USER_WORKING_DIR}}/.venv"
+        echo "Updated .venv to use Python $VER"
+
+  python:set-default:
+    desc: Set the default Python version
+    summary: |
+      Set the default Python version in .python-version
+
+      Examples:
+        # Set Python 3.11 as default
+        task python:set-default -- 3.11
+
+        # This will:
+        # 1. Check if the version is installed
+        # 2. Check if the version is in .python-versions
+        # 3. Update .python-version
+        # 4. Update the .venv symlink
+    silent: true
+    cmds:
+      - |
+        VER="{{.CLI_ARGS}}"
+        if ! uv python list --only-installed | grep -q "/python$VER"; then
+          echo "Error: Python $VER is not installed"
+          exit 1
+        fi
+        if ! grep -q "^$VER$" .python-versions; then
+          echo "Error: Python $VER is not in .python-versions"
+          exit 1
+        fi
+        echo "$VER" > .python-version
+        echo "Set Python $VER as default"
+      - task: python:update-venv
+
+  python:add:
+    desc: Add a Python version to .python-versions
+    summary: |
+      Add Python versions using uv python install (https://docs.astral.sh/uv/commands/python/)
+
+      Examples:
+        # Add Python 3.11
+        task python:add -- 3.11
+
+        # Add multiple versions
+        task python:add -- 3.11 3.12 3.13
+    silent: true
+    cmds:
+      - |
+        for ver in {{.CLI_ARGS}}; do
+          if ! grep -q "^$ver$" .python-versions; then
+            echo "Adding Python $ver..."
+            echo "$ver" >> .python-versions
+            sort -u -o .python-versions .python-versions
+            uv python install "$ver"
+          else
+            echo "Python $ver already in .python-versions"
+          fi
+        done
+      - task: setup
+
+  python:remove:
+    desc: Remove Python versions and their environments
+    summary: |
+      Remove Python versions from .python-versions and delete their virtual environments
+
+      Examples:
+        # Remove Python 3.11
+        task python:remove -- 3.11
+
+        # Remove multiple versions
+        task python:remove -- 3.11 3.12
+
+        # This will:
+        # 1. Remove versions from .python-versions
+        # 2. Delete their .venv-X.Y directories
+        # 3. If removing the default version, prompt to set a new one
+    silent: true
+    cmds:
+      - |
+        DEV_VER=$(cat .python-version)
+        NEED_NEW_DEFAULT=false
+
+        for ver in {{.CLI_ARGS}}; do
+          if grep -q "^$ver$" .python-versions; then
+            echo "Removing Python $ver..."
+            sed -i "/^$ver$/d" .python-versions
+            if [ -d ".venv-$ver" ]; then
+              rm -rf ".venv-$ver"
+              echo "Removed .venv-$ver directory"
+            fi
+            if [ "$ver" = "$DEV_VER" ]; then
+              NEED_NEW_DEFAULT=true
+            fi
+          else
+            echo "Python $ver not in .python-versions"
+          fi
+        done
+
+        if [ "$NEED_NEW_DEFAULT" = "true" ]; then
+          NEW_VER=$(head -n 1 .python-versions)
+          if [ -n "$NEW_VER" ]; then
+            echo "$NEW_VER" > .python-version
+            echo "Set Python $NEW_VER as new default version"
+            task python:update-venv
+          else
+            echo "Error: No Python versions left in .python-versions"
+            exit 1
+          fi
+        fi
+
+  setup:venv:
+    internal: true
+    silent: true
+    desc: Create a virtual environment using uv venv
+    summary: |
+      Create a virtual environment using uv venv (https://docs.astral.sh/uv/commands/venv/)
+    cmds:
+      - echo "Setting up Python {{.VERSION}} environment"
+      - uv venv --python-preference managed --python {{.VERSION}} .venv-{{.VERSION}}
+      - uv pip install --python .venv-{{.VERSION}}/bin/python -e ".[dev,docs]"
+
+  venvs:update:
+    desc: Update virtual environment with latest dependencies
+    summary: |
+      Update virtual environment with latest dependencies using uv pip install (https://docs.astral.sh/uv/commands/pip/)
+
+      Examples:
+        # Update all Python environments
+        task venvs:update
+    silent: true
+    vars:
+      # Space-separated list of supported Python versions from .python-versions
+      PYTHON_VERSIONS:
+        sh: cat .python-versions | tr '\n' ' ' | sed 's/ $//'  # Convert newlines to spaces and trim trailing space
+    cmds:
+      - for: { var: PYTHON_VERSIONS }
+        task: venvs:update:internal
+        vars:
+          VERSION: "{{.ITEM}}"
+      - pre-commit install
+
+  venvs:update:internal:
+    internal: true
+    silent: true
+    deps:
+      - check:venv
+      - check:virtual-env
+    cmds:
+      - echo "Updating Python {{.VERSION}} environment"
+      - uv pip install --python .venv-{{.VERSION}}/bin/python --upgrade pip
+      - uv pip install --python .venv-{{.VERSION}}/bin/python --upgrade -e ".[dev,docs]"
+
+  venvs:update:dev:
+    desc: Update development environment with latest dependencies
+    summary: |
+      Update development environment with latest dependencies
+
+      Before running this task, make sure your VIRTUAL_ENV environment variable
+      is either unset or matches your development Python version. If you see
+      an error about VIRTUAL_ENV mismatch, run: unset VIRTUAL_ENV
+
+      Examples:
+        # Update only the development environment
+        task venvs:update:dev
+    silent: true
+    vars:
+      # Primary development Python version from .python-version
+      DEV_VERSION:
+        sh: cat .python-version
+    cmds:
+      - task: venvs:update:internal
+        vars:
+          VERSION: "{{.DEV_VERSION}}"
+
+  venvs:upgrade:
+    desc: Upgrade all dependencies to latest versions
+    summary: |
+      Upgrade all dependencies using uv lock (https://docs.astral.sh/uv/commands/lock/)
+
+      Examples:
+        # Upgrade all dependencies
+        task venvs:upgrade
+
+        # This will:
+        # 1. Upgrade dependency versions in requirements.txt
+        # 2. Update all Python environments with new versions
+    silent: true
+    cmds:
+      - uv lock --upgrade
+      - task: venvs:update
+
+  add:
+    desc: Install a package using uv add
+    summary: |
+      Install a package using uv add (https://docs.astral.sh/uv/commands/add/)
+
+      Examples:
+        # Install a single package
+        task add -- requests
+
+        # Install a specific version
+        task add -- requests==2.31.0
+
+        # Install with options
+        task add -- --upgrade requests
+
+        # Install multiple packages
+        task add -- requests pytest black
+
+        # The double dash (--) is needed to separate the task's arguments from the package specifications.
+    deps:
+      - check:venv
+    cmds:
+      - uv add --python .venv/bin/python {{.CLI_ARGS}}
+      - task: venvs:update
+
+  remove:
+    desc: Remove a package using uv remove
+    summary: |
+      Remove a package using uv remove (https://docs.astral.sh/uv/commands/remove/)
+
+      Examples:
+        # Remove a single package
+        task remove -- requests
+
+        # Remove multiple packages
+        task remove -- requests pytest black
+
+        # The double dash (--) is needed to separate the task's arguments from the package specifications.
+    deps:
+      - check:venv
+    cmds:
+      - uv remove --python .venv/bin/python {{.CLI_ARGS}}
+      - task: venvs:update
+
+  clean:
+    desc: Clean build artifacts and caches
+    summary: |
+      Clean build artifacts and caches
+
+      Examples:
+        # Remove all build artifacts and caches
+        task clean
+    silent: true
+    cmds:
+      - find . -type d -name dist -exec rm -rf {} +
+      - find . -type d -name __pycache__ -exec rm -rf {} +
+      - find . -type d -name .pytest_cache -exec rm -rf {} +
+      - find . -type d -name .ruff_cache -exec rm -rf {} +
+      - find . -type d -name .mypy_cache -exec rm -rf {} +
+      - find . -type f -name .coverage -delete
+      - find . -type d -name htmlcov -exec rm -rf {} +
+      - find . -type d -name logs -exec rm -rf {} +
+      - find . -type d -name site -exec rm -rf {} +
+      - find ./docs -type d -name reference -exec rm -rf {} +
+      - task: venvs:clean
+
+  venvs:clean:
+    desc: Remove all virtual environments
+    summary: |
+      Remove all virtual environments
+
+      Examples:
+        # Remove all virtual environments
+        task clean:venvs
+    silent: true
+    vars:
+      # Space-separated list of supported Python versions from .python-versions
+      PYTHON_VERSIONS:
+        sh: cat .python-versions | tr '\n' ' ' | sed 's/ $//'  # Convert newlines to spaces and trim trailing space
+    cmds:
+      - rm -rf .venv
+      - for: { var: PYTHON_VERSIONS }
+        cmd: rm -rf .venv-{{.ITEM}}
+
+  # Testing
+  test:
+    desc: Run tests
+    summary: |
+      Run tests using development Python version
+
+      Examples:
+        # Run all tests
+        task test
+
+        # Run specific test file
+        task test -- tests/test_example.py
+
+        # Run specific test function
+        task test -- tests/test_example.py::test_function
+
+        # The double dash (--) is needed to separate the task's arguments from the pytest options.
+    deps:
+      - check:venv
+      - check:virtual-env
+    cmds:
+      - uv run --python .venv/bin/python pytest {{.CLI_ARGS}}
+
+  test:unit:
+    desc: Run unit tests
+    summary: |
+      Run unit tests
+
+      Examples:
+        # Run all unit tests
+        task test:unit
+    deps:
+      - check:venv
+      - check:virtual-env
+    cmds:
+      - uv run --python .venv/bin/python pytest tests/unit {{.CLI_ARGS}}
+
+  test:integration:
+    desc: Run integration tests
+    summary: |
+      Run integration tests
+
+      Examples:
+        # Run all integration tests
+        task test:integration
+    deps:
+      - check:venv
+      - check:virtual-env
+    cmds:
+      - uv run --python .venv/bin/python pytest tests/integration {{.CLI_ARGS}}
+
+  test:e2e:
+    desc: Run end-to-end tests
+    summary: |
+      Run end-to-end tests
+
+      Examples:
+        # Run all end-to-end tests
+        task test:e2e
+    deps:
+      - check:venv
+      - check:virtual-env
+    cmds:
+      - uv run --python .venv/bin/python pytest tests/e2e {{.CLI_ARGS}}
+
+  test:performance:
+    desc: Run performance tests (requires --run-performance flag)
+    summary: |
+      Run performance tests with pytest-benchmark
+
+      Examples:
+        # Run performance tests
+        task test:performance -- --run-performance
+
+        # Run performance tests with specific benchmark options
+        task test:performance -- --run-performance --benchmark-min-rounds=5
+    deps:
+      - check:venv
+    cmds:
+      - uv run pytest tests/performance/ -v --run-performance --benchmark-enable --benchmark-json=benchmark_results.json
+      - echo "Performance test results saved to benchmark_results.json"
+
+  test:coverage:
+    desc: Run tests with coverage report
+    summary: |
+      Run tests with coverage report (minimum required coverage: 80%)
+
+      Examples:
+        # Run tests with coverage report
+        task test:coverage
+
+        # This will:
+        # - Run tests with coverage tracking
+        # - Show missing lines in coverage report
+        # - Fail if coverage is below 80%
+    silent: true
+    deps:
+      - check:venv
+    cmds:
+      - uv run --python .venv/bin/python pytest -vv --cov --cov-report=term-missing
+      - cmd: |
+          coverage=$(uv run --python .venv/bin/python coverage report | grep TOTAL | awk '{print $6}' | tr -d '%')
+          if (( $(echo "$coverage < {{.COVERAGE_MIN}}" | bc -l) )); then
+            echo "❌ Coverage $coverage% is below minimum required {{.COVERAGE_MIN}}%"
+            exit 1
+          else
+            echo "✅ Coverage $coverage% meets minimum requirement of {{.COVERAGE_MIN}}%"
+          fi
+
+  test:github-actions:
+    desc: Run GitHub Actions tests locally using act
+    summary: |
+      Run GitHub Actions tests locally using act
+
+      Prerequisites:
+        1. Docker must be installed and running
+        2. act must be installed (https://github.com/nektos/act)
+        3. Docker user must have permissions to run containers
+           (user should be in the docker group or use sudo)
+
+      Examples:
+        # Run all GitHub Actions tests
+        task test:github-actions
+
+        # Run a specific job
+        task test:github-actions -- -j test
+        task test:github-actions -- -j type-check
+        task test:github-actions -- -j docs
+
+        # List available jobs
+        task test:github-actions -- -l
+
+        # The double dash (--) is needed to separate the task's arguments from the act options.
+    cmds:
+      - |
+        if [ -z "{{.CLI_ARGS}}" ]; then
+          # Run jobs sequentially when no specific job is specified
+          act -j test --container-architecture linux/amd64 -P ubuntu-latest=ghcr.io/catthehacker/ubuntu:act-latest && \
+          act -j type-check --container-architecture linux/amd64 -P ubuntu-latest=ghcr.io/catthehacker/ubuntu:act-latest && \
+          act -j docs --container-architecture linux/amd64 -P ubuntu-latest=ghcr.io/catthehacker/ubuntu:act-latest
+        else
+          # Run specific job(s) as specified in CLI_ARGS
+          act {{.CLI_ARGS}} --container-architecture linux/amd64 -P ubuntu-latest=ghcr.io/catthehacker/ubuntu:act-latest
+        fi
+
+  test:pythons:
+    desc: Run tests and checks across all Python versions
+    summary: |
+      Run tests and checks (ruff, mypy, pytest) across all Python versions
+
+      Examples:
+        # Test across all Python versions
+        task test:pythons
+    deps:
+      - check:venv
+    vars:
+      # Space-separated list of supported Python versions from .python-versions
+      PYTHON_VERSIONS:
+        sh: cat .python-versions | tr '\n' ' ' | sed 's/ $//'  # Convert newlines to spaces and trim trailing space
+    cmds:
+      - for: { var: PYTHON_VERSIONS }
+        task: test:python
+        vars:
+          VERSION: "{{.ITEM}}"
+
+  test:python:
+    internal: true
+    deps:
+      - check:venv
+    cmds:
+      - echo "Testing with Python {{.VERSION}}"
+      # Run tests
+      - uv run --python .venv/bin/python ruff check src tests
+      - uv run --python .venv/bin/python mypy src tests
+      - uv run --python .venv/bin/python pytest -v
+
+  # Code quality
+  pre-commit:
+    desc: Run pre-commit hooks with one retry on failure
+    summary: |
+      Run pre-commit hooks. If the first run fails, it will retry once.
+      The task fails only if both attempts fail.
+
+      Examples:
+        # Run pre-commit hooks on all files
+        task pre-commit
+
+        # Run pre-commit on specific files
+        task pre-commit -- tests/unit/test_arguments.py
+
+        # Run a specific hook
+        task pre-commit --files tests/unit/test_arguments.py --hook ruff
+    deps:
+      - check:venv
+    cmds:
+      - cmd: |
+          if [ -z "{{.CLI_ARGS}}" ]; then
+            .venv/bin/pre-commit run --all-files || {
+              echo "Pre-commit failed, retrying..."
+              .venv/bin/pre-commit run --all-files
+            }
+          else
+            .venv/bin/pre-commit run {{.CLI_ARGS}} || {
+              echo "Pre-commit failed, retrying..."
+              .venv/bin/pre-commit run {{.CLI_ARGS}}
+            }
+          fi
+    silent: true
+    vars:
+      CLI_ARGS: '{{.CLI_ARGS | default ""}}'
+
+  lint:deadcode:
+    desc: Check for unused code in the project
+    summary: |
+      Check for unused code in the project
+
+      Examples:
+        # Check for unused code (dry run)
+        task lint:deadcode
+
+        # This checks for:
+        # - Unused functions and classes
+        # - Unused imports
+        # - Dead code blocks
+    deps:
+      - check:venv
+    cmds:
+      - uv run --python .venv/bin/python deadcode --dry src tests
+
+  lint:deadcode:fix:
+    desc: Fix unused code in the project
+    summary: |
+      Fix unused code in the project
+
+      Examples:
+        # Fix unused code
+        task lint:deadcode:fix
+
+        # This fixes:
+        # - Unused functions and classes
+        # - Unused imports
+        # - Dead code blocks
+    deps:
+      - check:venv
+    cmds:
+      - uv run --python .venv/bin/python deadcode --fix src
+
+  lint:techdebt:
+    desc: Find technical debt in the codebase
+    summary: |
+      Scan the codebase for technical debt markers (TODO, FIXME, TBD, etc.)
+
+      Examples:
+        # Find all technical debt in default locations (src/)
+        task lint:techdebt
+
+        # Search specific directories
+        task lint:techdebt -- src/ tests/
+
+
+        # Use custom markers (note the -- before the arguments)
+        task lint:techdebt -- --markers=TODO,FIXME,XXX
+
+        # Search specific directories with custom markers
+        task lint:techdebt -- --markers=TODO,FIXME src/ tests/
+
+
+        # Multiple arguments
+        task lint:techdebt -- --markers=TODO,FIXME --exclude=tests/
+
+
+      By default, searches for: TODO, FIXME, TBD, HACK, NOTE, BUG, WARNING, DEPRECATED
+      in the src/ directory.
+    deps:
+      - check:venv
+    cmds:
+      - chmod +x ./scripts/find-tech-debt.py
+      - ./scripts/find-tech-debt.py {{.CLI_ARGS}}
+    vars:
+      # Pass all arguments after -- to the script
+      # This requires using -- before the arguments to pass them through
+      # Example: task lint:techdebt -- --markers=TODO,FIXME src/
+      CLI_ARGS: '{{join " " .CLI_ARGS}}'
+
+  lint:tests:
+    desc: Verify no mocks, patches, or monkeypatching in test files
+    summary: |
+      Check test files for usage of mocks, patches, or monkeypatching
+      which are not allowed in this project.
+
+      Examples:
+        # Check for disallowed test patterns
+        task lint:tests
+    deps:
+      - check:venv
+    cmds:
+      - |
+        # Check for common mocking patterns
+        if grep -r --include="*.py" -lE '\b(unittest\.mock|patch|mocker|monkeypatch)\b' tests/; then
+          echo "Error: Found disallowed test patterns (mocks/patches/monkeypatching) in the above files"
+          echo "This project requires tests to use real implementations or dependency injection"
+          exit 1
+        fi
+      - |
+        # Check for pytest-mock usage
+        if grep -r --include="*.py" -lE '\bmocker\s*=|@pytest\.mark\.mocker\b' tests/; then
+          echo "Error: Found disallowed pytest-mock usage in the above files"
+          echo "This project requires tests to use real implementations or dependency injection"
+          exit 1
+        fi
+    silent: true
+
+  lint:
+    desc: Run all code quality checks
+    summary: |
+      Run all code quality checks (ruff, mypy, tests)
+
+      Examples:
+        # Run all linters
+        task lint
+    cmds:
+      - cmd: |
+          if [ -z "{{.CLI_ARGS}}" ]; then
+            exec task lint:ruff
+          else
+            exec task lint:ruff -- {{.CLI_ARGS}}
+          fi
+      - cmd: |
+          if [ -z "{{.CLI_ARGS}}" ]; then
+            exec task lint:mypy
+          else
+            exec task lint:mypy -- {{.CLI_ARGS}}
+          fi
+      - cmd: |
+          if [ -z "{{.CLI_ARGS}}" ]; then
+            exec task lint:tests
+          else
+            # Skip lint:tests if specific files are provided
+            echo "Skipping test pattern check when specific files are provided"
+          fi
+      - cmd: |
+          echo "Checking for AI being bad..."
+          echo "  Checking for logger calls with string format arguments..."
+          if grep -rnE 'logger\\.(debug|info|warning|error|exception|critical)[^,]+%' src/**/*.py; then
+            echo "Error: Found logger calls with string format arguments. Use loguru's {} placeholder syntax instead (e.g., logger.debug('message: {}', value))"
+            exit 1
+          fi
+          echo "  Checking for import logging..."
+          if grep -rnE 'import logging' src/**/*.py; then
+            echo "Error: Found 'import logging'. Use 'from loguru import logger' instead."
+            exit 1
+          fi
+    vars:
+      CLI_ARGS: '{{.CLI_ARGS | default ""}}'
+    silent: true
+
+  lint:ruff:
+    desc: Run ruff linter on source and test files
+    summary: |
+      Run ruff linter on source and test files
+
+      Examples:
+        # Run ruff linter
+        task lint:ruff
+
+        # Run on specific files/directories
+        task lint:ruff -- src/lumberjack/models
+
+        # Show help for ruff
+        task lint:ruff -- --help
+
+        # Common options:
+        # --fix         Attempt to automatically fix lint violations
+        # --show-source Show source code for errors
+        # --exit-zero   Exit with code 0 even if there are errors
+        # --watch       Run in watch mode
+    deps:
+      - check:venv
+    cmds:
+      - uv run --python .venv/bin/python ruff check {{.CLI_ARGS | default "src tests"}}
+
+  lint:mypy:
+    desc: Run mypy type checker on source and test files
+    summary: |
+      Run mypy type checker on source and test files
+
+      Examples:
+        # Run type checking
+        task lint:mypy
+
+        # Check specific files/directories
+        task lint:mypy -- src/lumberjack/models
+
+        # Show help for mypy
+        task lint:mypy -- --help
+
+        # Common options:
+        # --strict      Enable strict mode
+        # --show-error-codes  Show error codes
+        # --pretty      Use visually nicer output
+        # --warn-unused-ignores  Warn about unneeded # type: ignore comments
+    deps:
+      - check:venv
+    cmds:
+      - uv run --python .venv/bin/python mypy {{.CLI_ARGS | default "src tests"}}
+
+  lint:security:
+    desc: Run security linters (bandit, safety, trufflehog)
+    summary: |
+      Run security linters to identify potential security issues
+
+      This task runs the following security tools:
+      - bandit: Static code analysis for security issues
+
+      Examples:
+        # Run all security checks
+        task lint:security
+
+        # Run specific security tools
+        task lint:security -- bandit
+    deps:
+      - check:venv
+    cmds:
+      - cmd: uv run --python .venv/bin/python -m bandit --quiet -r src/ -c pyproject.toml
+
+  spell:
+    desc: Check spelling in code and documentation files
+    summary: |
+      Check spelling in code and documentation files
+
+      Examples:
+        # Check spelling in all files
+        task spell
+
+        # Check specific files/directories
+        task spell -- src/lumberjack/models
+
+        # Show help for codespell
+        task spell -- --help
+
+        # Common options:
+        # --skip=file1,file2  Skip specified files/directories
+        # --ignore-words=FILE  File with words to ignore
+        # --write-changes  Write changes in place if possible
+        # --quiet          Suppress output unless there are errors
+    deps:
+      - check:venv
+    cmds:
+      - uv run --python .venv/bin/python codespell {{.CLI_ARGS | default "src tests docs README.md"}}
+
+  format:
+    desc: Format code with ruff formatter
+    summary: |
+      Format code with ruff formatter
+
+      Examples:
+        # Format all code
+        task format
+
+        # Format specific files/directories
+        task format -- src/lumberjack/models
+
+        # Show help for ruff format
+        task format -- --help
+
+        # Common options:
+        # --check         Check if files are formatted (no changes)
+        # --diff          Show diff of changes
+        # --force-exclude Force exclude files/directories
+    deps:
+      - check:venv
+    cmds:
+      - uv run --python .venv/bin/python ruff format {{.CLI_ARGS | default "src tests"}}
+
+  metrics:
+    desc: Run code quality metrics using radon
+    summary: |
+      Run code quality metrics using radon
+
+      Examples:
+        # Check code complexity for all source files
+        task metrics
+
+        # Check specific files/directories
+        task metrics -- src/lumberjack/models
+
+        # Show help for radon
+        task metrics -- --help
+
+        # Common options:
+        # -s, --min=B  Minimum score (default: 0)
+        # -m, --min=B  Minimum score (same as -s)
+        # -x, --max=B  Maximum score (default: 100)
+        # -j, --json   Output results as JSON
+        # -n, --no-assert  Ignore assert statements
+        # -nc, --no-color  Disable colors in output
+    deps:
+      - check:venv
+    cmds:
+      - uv run --python .venv/bin/python radon cc {{.CLI_ARGS | default "src"}}
+      - task: metrics:sloc
+
+  metrics:sloc:
+    desc: Calculate SLOC using radon
+    summary: |
+      Calculate SLOC using radon
+
+      Examples:
+        # Calculate SLOC
+        task metrics:sloc
+    deps:
+      - check:venv
+    cmds:
+      - uv run --python .venv/bin/python radon raw --summary src | grep -A 5 "^\*\* Total \*\*" | grep "SLOC" | awk '{print "SLOC:", $2}'
+    silent: true
+
+  # Documentation
+  docs:
+    desc: Build and serve documentation locally
+    summary: |
+      Build and serve documentation locally (builds docs and starts server at http://127.0.0.1:8000)
+
+      Examples:
+        # Build docs and start server
+        task docs
+
+        # After starting, visit http://127.0.0.1:8000 in your browser
+        # Press Ctrl+C to stop the server
+    deps:
+      - check:venv
+    cmds:
+      - task: docs:build
+      - uv run --python .venv/bin/python mkdocs serve
+
+  docs:markdown-nl-eof:
+    desc: Ensure markdown files end with a newline character (internal)
+    internal: true
+    cmds:
+      - |
+        echo "Ensuring markdown files end with newline..."
+        # Fix newlines in reference markdown files
+        find docs/reference -type f -name "*.md" | while read -r file; do
+          if [ -s "$file" ] && ! tail -c 1 "$file" | grep -q '^$'; then
+            echo >> "$file"
+          fi
+        done
+
+        # Also check site directory after build
+        find site -type f -name "*.md" | while read -r file; do
+          if [ -s "$file" ] && ! tail -c 1 "$file" | grep -q '^$'; then
+            echo >> "$file"
+          fi
+        done
+    silent: true
+
+  docs:build:
+    desc: Build documentation to site/ directory
+    summary: |
+      Build the documentation site using MkDocs.
+      The built documentation will be in the site/ directory
+    deps:
+      - check:venv
+    cmds:
+      - echo "Building documentation..."
+      - echo "Building api reference..."
+      - uv run --python .venv/bin/python scripts/gen_ref_pages.py
+      - echo "Copying project files..."
+      - mkdir -p docs/project-files
+      - cp LICENSE README.md DEV-README.md docs/project-files/
+      - echo "Building site..."
+      - mkdocs build --strict --quiet
+      - task: docs:markdown-nl-eof
+
+  docs:serve:
+    desc: Serve documentation without rebuilding
+    summary: |
+      Serve documentation without rebuilding (starts server at http://127.0.0.1:8000)
+
+      Examples:
+        # Start documentation server
+        task docs:serve
+
+        # After starting, visit http://127.0.0.1:8000 in your browser
+        # Press Ctrl+C to stop the server
+
+        # Note: Use task docs if you want to build and serve in one step
+    deps:
+      - check:venv
+    cmds:
+      - uv run --python .venv/bin/python mkdocs serve
+
+  # Building
+  build:
+    desc: Build source + binary distributions
+    summary: |
+      Build source the source distribution from the source files,
+      then builds the binary distribution from the source distribution.
+
+      Examples:
+        task build
+    deps:
+      - check:venv
+    cmds:
+      - rm -rf dist/
+      - uv run .venv/bin/python -m build
+
+  # Version management
+  version:
+    desc: Display current version from pyproject.toml
+    summary: |
+      Shows the current version from pyproject.toml
+
+      Example:
+        task version
+    silent: true
+    deps:
+      - check:venv
+    cmds:
+      - |
+        VERSION=$(uv run .venv/bin/python -c "import tomli; print(tomli.load(open('pyproject.toml', 'rb'))['project']['version'])")
+        echo "Current version: $VERSION"
+
+  version:bump:
+    desc: Bump patch version number
+    summary: |
+      Increment the patch version number (e.g., 1.2.3 -> 1.2.4)
+
+      Examples:
+        # Bump patch version
+        task version:bump
+    silent: true
+    deps:
+      - check:venv
+    cmds:
+      - uv run .venv/bin/version_bumper bump patch
+
+  version:tag:
+    desc: Create and push a git tag using version from pyproject.toml
+    summary: |
+      Creates a git tag using the version from pyproject.toml and pushes it to origin.
+      The tag will be in the format v{version} (e.g., v1.2.3).
+
+      Example:
+        task version:tag
+    silent: true
+    deps:
+      - check:venv
+    cmds:
+      - |
+        VERSION=$(uv run .venv/bin/python -c "import tomli; print(tomli.load(open('pyproject.toml', 'rb'))['project']['version'])")
+        echo "Creating and pushing tag v$VERSION"
+        git tag "v$VERSION"
+        git push origin "v$VERSION"
+
+# Publishing
+  publish:test-pypi:
+    desc: Publish to the test.pypi.org server
+    summary: |
+      Publish to the test.pypi.org server
+      Requires ~/.pypirc with test.pypi.org credentials and 0600 permissions
+      See https://packaging.python.org/en/latest/specifications/pypirc/
+
+      Examples:
+        # Publish to TestPyPI
+        task publish-test-pypi
+    deps:
+      - build
+    preconditions:
+      - sh: test -f ~/.pypirc
+        msg: "~/.pypirc file not found"
+      - sh: test -s ~/.pypirc
+        msg: "~/.pypirc is empty"
+      - sh: '[[ $(stat -c %a ~/.pypirc) = "600" ]]'
+        msg: "~/.pypirc must have 0600 permissions"
+    cmds:
+      - uv run --python .venv/bin/python twine upload --repository testpypi dist/*
+
+  publish:pypi:
+    desc: Publish to the pypi.org server
+    summary: |
+      Publish to the pypi.org server
+      Requires ~/.pypirc with pypi.org credentials and 0600 permissions
+      See https://packaging.python.org/en/latest/specifications/pypirc/
+
+      Examples:
+        # Publish to PyPI
+        task publish-pypi
+    deps:
+      - build
+    preconditions:
+      - sh: test -f ~/.pypirc
+        msg: "~/.pypirc file not found"
+      - sh: test -s ~/.pypirc
+        msg: "~/.pypirc is empty"
+      - sh: '[[ $(stat -c %a ~/.pypirc) = "600" ]]'
+        msg: "~/.pypirc must have 0600 permissions"
+    cmds:
+      - uv run --python .venv/bin/python twine upload dist/*

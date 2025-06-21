@@ -1,0 +1,92 @@
+# Code Quality Standards
+max_cyclomatic_complexity = 5
+max_line_length = 100
+min_test_coverage = 80
+
+# Documentation Requirements
+docstring_style = "google"
+require_docstrings = true
+require_type_hints = true
+require_examples = true
+require_spell_check = true
+require_change_log = true  # Must maintain a CHANGELOG.md
+
+# Project Structure
+src_layout = true
+tests_dir = "tests"
+docs_dir = "docs"
+scripts_dir = "scripts"
+data_dir = "data"
+tests_data_dir = "tests/data"
+
+# Development Practices
+branch_prefix = "feature/"
+commit_convention = "conventional"
+require_pre_commit = true
+require_task_automation = true
+use_taskfile = true  # Use tasks defined in Taskfile.yaml (e.g., "task lint", "task test")
+
+# Design Practices
+prefer_design_patterns = true  # Use established design patterns where applicable
+design_patterns = [
+    "factory",      # For object creation
+    "strategy",     # For interchangeable algorithms
+    "observer",     # For event handling
+    "repository",   # For data access
+    "dependency_injection"  # For loose coupling
+    "mvc",          # For User Interface
+]
+document_patterns = true  # Document which patterns are used and why
+pattern_threshold = "3+"  # Apply patterns when similar code appears 3+ times
+design_for_testability = true
+
+# Test-Driven Development
+require_tests_first = true  # Write tests before implementing features
+test_commit_order = true   # Tests must be committed before or with implementation
+test_naming = "test_${feature}_${scenario}"  # Naming convention for test files/functions
+refactor_after_green = true  # Must consider refactoring after each green state
+refactor_tests_first = true  # Must refactor tests before refactoring implementation
+
+# Red-Green-Refactor Strategy
+require_red_green_cycle = true  # Must follow red-green-refactor cycle
+require_failing_test_first = true  # Must have a failing test before implementation
+max_green_time = "10m"  # Maximum time between red and green states
+max_implementation_size = "small"  # Keep implementations small and focused
+refactor_after_green = true  # Must consider refactoring after each green state
+commit_state = "green"  # Only commit when tests are passing
+check_complexity_before_green = true  # Must check complexity before green state
+
+# Code Review Standards
+max_file_changes = 500
+require_tests = true
+require_documentation = true
+
+# Dependencies
+python_min_version = "3.11"
+use_uv = true
+use_ruff = true
+use_mypy = true
+use_pytest = true
+use_codecov = true
+use_pre_commit = true
+use_taskfile = true
+use_github_actions = true
+use_github_pages = true
+use_github_releases = true
+use_mkdocs = true
+use_mkdocstrings = true
+use_gen_files = true
+use_literate_nav = true
+use_spell_check = true
+
+# Documentation Tools
+use_mkdocs = true
+use_mkdocstrings = true
+use_gen_files = true
+
+# Testing
+test_framework = "pytest"
+require_coverage_report = true
+require_type_checking = true
+avoid_mocks = true  # Avoid using mocks in tests unless absolutely necessary
+ask_before_using_mocks = true
