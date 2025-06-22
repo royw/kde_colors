@@ -22,11 +22,12 @@ keywords = [
     "APPLICATION"
 ]
 
-scripts = {'kde_colors' = "kde_colors.__main__:main"}
+scripts = {'kde_colors' = "kde_colors.cli.cli_runner:run_cli"}
 
 dependencies = [
     "loguru>=0.7.0",
     "typing-extensions>=4.0.0",
+    "xdg-base-dirs>=6.0.2",
 ]
 
 [project.optional-dependencies]

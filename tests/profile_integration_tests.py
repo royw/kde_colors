@@ -7,10 +7,11 @@ import cProfile
 import pstats
 import sys
 
+import pytest
+
 
 def run_tests() -> None:
     """Run the integration tests."""
-    import pytest
 
     sys.exit(pytest.main(["-v", "tests/integration/"]))
 

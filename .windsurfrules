@@ -40,22 +40,6 @@ document_patterns = true  # Document which patterns are used and why
 pattern_threshold = "3+"  # Apply patterns when similar code appears 3+ times
 design_for_testability = true
 
-# Test-Driven Development
-require_tests_first = true  # Write tests before implementing features
-test_commit_order = true   # Tests must be committed before or with implementation
-test_naming = "test_${feature}_${scenario}"  # Naming convention for test files/functions
-refactor_after_green = true  # Must consider refactoring after each green state
-refactor_tests_first = true  # Must refactor tests before refactoring implementation
-
-# Red-Green-Refactor Strategy
-require_red_green_cycle = true  # Must follow red-green-refactor cycle
-require_failing_test_first = true  # Must have a failing test before implementation
-max_green_time = "10m"  # Maximum time between red and green states
-max_implementation_size = "small"  # Keep implementations small and focused
-refactor_after_green = true  # Must consider refactoring after each green state
-commit_state = "green"  # Only commit when tests are passing
-check_complexity_before_green = true  # Must check complexity before green state
-
 # Code Review Standards
 max_file_changes = 500
 require_tests = true
