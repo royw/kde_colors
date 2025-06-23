@@ -78,7 +78,7 @@ def test_paths_command_with_json_output() -> None:
 
     # Run command
     exit_code = run_cli(
-        args=["paths", "--format", "json", "--output", str(output_path)],
+        args=["paths", "--json", "--output", str(output_path)],
         file_system=cast(FileSystemInterface, file_system),
         xdg=xdg_double,
         theme_loader=theme_loader,

@@ -81,7 +81,8 @@ class CLIRunner:
             self._setup_logging(arguments.log_level)
             logger.debug("arguments: {}", arguments)
 
-            formatter: OutputFormatterInterface = get_output_formatter(arguments.format, arguments.command)
+            format = "json" if arguments.json else "text"
+            formatter: OutputFormatterInterface = get_output_formatter(format, arguments.command)
             logger.debug("formatter: {}", formatter)
 
             handlers: dict[str, Callable[[str | None], dict[str, Any]]] = {

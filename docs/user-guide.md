@@ -22,6 +22,8 @@ These options can be used with any command:
 
 | Option | Description |
 |--------|-------------|
+| `-j`, `--json` | Output as JSON instead of text format. |
+| `-o`, `--output PATH` | Write output to the specified file instead of stdout. |
 | `-v`, `--verbose` | Increase verbosity level. Can be specified multiple times for more detail (e.g., `-vv` for debug level). |
 | `--version` | Show the version number and exit. |
 | `-h`, `--help` | Show help message and exit. |
@@ -38,19 +40,19 @@ kde-colors list [OPTIONS]
 
 #### List Options
 
-| Option | Description |
-|--------|-------------|
-| `-f`, `--format {text,json}` | Output format (default: json) |
-| `-o`, `--output PATH` | Write output to the specified file instead of stdout |
+The List command uses the global options described above.
 
 #### List Example
 
 ```bash
-# List all themes in text format
-kde-colors list --format text
+# List all themes in text format (default)
+kde-colors list
+
+# List all themes in JSON format
+kde-colors list --json
 
 # Save the list of themes to a file in JSON format
-kde-colors list --output themes.json
+kde-colors list --json --output themes.json
 ```
 
 #### List Output
@@ -97,16 +99,19 @@ kde-colors paths [OPTIONS]
 
 #### Paths Options
 
-| Option | Description |
-|--------|-------------|
-| `-f`, `--format {text,json}` | Output format (default: json) |
-| `-o`, `--output PATH` | Write output to the specified file instead of stdout |
+The Paths command uses the global options described above.
 
 #### Paths Example
 
 ```bash
-# View theme paths in text format
-kde-colors paths --format text
+# View theme paths in text format (default)
+kde-colors paths
+
+# View theme paths in JSON format
+kde-colors paths --json
+
+# Save theme paths to a file in JSON format
+kde-colors paths --json --output paths.json
 ```
 
 #### Paths Output
@@ -154,19 +159,19 @@ kde-colors theme [THEME_NAME] [OPTIONS]
 
 #### Theme Options
 
-| Option | Description |
-|--------|-------------|
-| `-f`, `--format {text,json}` | Output format (default: json) |
-| `-o`, `--output PATH` | Write output to the specified file instead of stdout |
+The Theme command uses the global options described above.
 
 #### Theme Example
 
 ```bash
-# Extract colors from the Breeze theme in text format
-kde-colors theme Breeze --format text
+# Extract colors from the Breeze theme in text format (default)
+kde-colors theme Breeze
+
+# Extract colors from the Breeze theme in JSON format
+kde-colors theme Breeze --json
 
 # Extract colors from the Breeze Dark theme and save as JSON
-kde-colors theme "Breeze Dark" --output breeze-dark-colors.json
+kde-colors theme "Breeze Dark" --json --output breeze-dark-colors.json
 
 # Extract colors from the current theme
 kde-colors theme
@@ -242,7 +247,7 @@ The CLI uses the following exit codes to indicate the result of the operation:
 ### Extract Colors from Current Theme
 
 ```bash
-kde-colors theme current --format text
+kde-colors theme current
 ```
 
 ### Find the Current Theme

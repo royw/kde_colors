@@ -40,11 +40,11 @@ class TestCliArgParser(unittest.TestCase):
         assert args.log_level == 0
 
         # Parse with one level of verbosity
-        args = parse_args(["-v", "list"])
+        args = parse_args(["list", "-v"])
         assert args.log_level == 1
 
         # Parse with multiple levels of verbosity
-        args = parse_args(["-vvv", "list"])
+        args = parse_args(["list", "-vvv"])
         assert args.log_level == 3
 
     def test_list_command(self) -> None:
@@ -52,27 +52,27 @@ class TestCliArgParser(unittest.TestCase):
         # Basic command
         args = parse_args(["list"])
         assert args.command == "list"
-        assert args.format == "text"  # Default format
+        assert not args.json  # Default is text format (not JSON)
         assert args.output is None
 
-        # With format and output options
-        args = parse_args(["list", "--format", "text", "--output", "themes.txt"])
+        # With json and output options
+        args = parse_args(["list", "--json", "--output", "themes.json"])
         assert args.command == "list"
-        assert args.format == "text"
-        assert args.output == "themes.txt"
+        assert args.json
+        assert args.output == "themes.json"
 
     def test_paths_command(self) -> None:
         """Test the 'paths' command parsing."""
         # Basic command
         args = parse_args(["paths"])
         assert args.command == "paths"
-        assert args.format == "text"  # Default format
+        assert not args.json  # Default is text format (not JSON)
         assert args.output is None
 
-        # With format and output options
-        args = parse_args(["paths", "--format", "json", "--output", "paths.json"])
+        # With json and output options
+        args = parse_args(["paths", "--json", "--output", "paths.json"])
         assert args.command == "paths"
-        assert args.format == "json"
+        assert args.json
         assert args.output == "paths.json"
 
     def test_theme_command(self) -> None:
@@ -81,7 +81,7 @@ class TestCliArgParser(unittest.TestCase):
         args = parse_args(["theme"])
         assert args.command == "theme"
         assert args.theme_name is None
-        assert args.format == "text"  # Default format
+        assert not args.json  # Default is text format (not JSON)
 
         # With specific theme
         args = parse_args(["theme", "Breeze"])
@@ -89,10 +89,10 @@ class TestCliArgParser(unittest.TestCase):
         assert args.theme_name == "Breeze"
 
         # With all options
-        args = parse_args(["theme", "Breeze", "--format", "json", "--output", "theme.json"])
+        args = parse_args(["theme", "Breeze", "--json", "--output", "theme.json"])
         assert args.command == "theme"
         assert args.theme_name == "Breeze"
-        assert args.format == "json"
+        assert args.json
         assert args.output == "theme.json"
 
     def test_required_command(self) -> None:

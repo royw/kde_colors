@@ -11,6 +11,21 @@ import argparse
 import importlib.metadata
 
 
+def _add_global_options(sub_parser: argparse.ArgumentParser) -> None:
+    sub_parser.add_argument("-j", "--json", action="store_true", help="Output as JSON")
+    sub_parser.add_argument(
+        "-o", "--output", metavar="PATH", help="Write output to the specified file instead of stdout"
+    )
+    sub_parser.add_argument(
+        "-v",
+        "--verbose",
+        action="count",
+        dest="log_level",
+        default=0,
+        help="Increase verbosity level. Can be specified multiple times for more detail.",
+    )
+
+
 def create_parser() -> argparse.ArgumentParser:
     """
     Creates and configures the command-line argument parser.
@@ -31,14 +46,6 @@ def create_parser() -> argparse.ArgumentParser:
         action="version",
         version=f"%(prog)s {get_version()}",
     )
-    parser.add_argument(
-        "-v",
-        "--verbose",
-        action="count",
-        dest="log_level",
-        default=0,
-        help="Increase verbosity level. Can be specified multiple times for more detail.",
-    )
 
     # Create subparsers
     subparsers = parser.add_subparsers(
@@ -55,12 +62,7 @@ def create_parser() -> argparse.ArgumentParser:
         help="List all available KDE themes installed on the system",
         description="List all available KDE themes installed on the system",
     )
-    list_parser.add_argument(
-        "-f", "--format", choices=["text", "json"], default="text", help="Output format (default: %(default)s)"
-    )
-    list_parser.add_argument(
-        "-o", "--output", metavar="PATH", help="Write output to the specified file instead of stdout"
-    )
+    _add_global_options(list_parser)
 
     # Paths command - keeping this from the architecture document
     paths_parser = subparsers.add_parser(
@@ -68,12 +70,7 @@ def create_parser() -> argparse.ArgumentParser:
         help="Show theme search paths",
         description="Display the paths where KDE themes are searched for",
     )
-    paths_parser.add_argument(
-        "-f", "--format", choices=["text", "json"], default="text", help="Output format (default: %(default)s)"
-    )
-    paths_parser.add_argument(
-        "-o", "--output", metavar="PATH", help="Write output to the specified file instead of stdout"
-    )
+    _add_global_options(paths_parser)
 
     # Theme command
     theme_parser = subparsers.add_parser(
@@ -86,12 +83,7 @@ def create_parser() -> argparse.ArgumentParser:
         nargs="?",  # Make it optional to support getting the current theme
         help="Name of the theme to display. If not specified, the current theme will be used.",
     )
-    theme_parser.add_argument(
-        "-f", "--format", choices=["text", "json"], default="text", help="Output format (default: %(default)s)"
-    )
-    theme_parser.add_argument(
-        "-o", "--output", metavar="PATH", help="Write output to the specified file instead of stdout"
-    )
+    _add_global_options(theme_parser)
 
     return parser
 
