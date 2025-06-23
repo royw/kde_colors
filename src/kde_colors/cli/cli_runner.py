@@ -53,8 +53,18 @@ class CLIRunner:
         self.theme_loader = theme_loader or ThemeLoader(self.file_system, self.xdg)
 
     def _setup_logging(self, log_level: str) -> None:
+        # log_level contains the number of -v arguments
+        # log_level = 0 => warning
+        # log_level = 1 => info
+        # log_level = 2 => debug
+        # log_level = 3 => trace
         logger.remove()
-        logger.add(sys.stdout, level=log_level)
+        levels = ["WARNING", "INFO", "DEBUG", "TRACE"]
+        if int(log_level) >= len(levels):
+            log_level = str(len(levels) - 1)
+        level = levels[int(log_level)]
+        logger.add(sys.stdout, level=level)
+        logger.info("log level: {}", level)
 
     def run(self, args: list[str] | None = None) -> int:
         """Run the CLI with the given arguments.
@@ -68,9 +78,11 @@ class CLIRunner:
         try:
             # Parse the arguments
             arguments = parse_args(args or sys.argv[1:])
-
             self._setup_logging(arguments.log_level)
+            logger.debug("arguments: {}", arguments)
+
             formatter: OutputFormatterInterface = get_output_formatter(arguments.format, arguments.command)
+            logger.debug("formatter: {}", formatter)
 
             handlers: dict[str, Callable[[str | None], dict[str, Any]]] = {
                 "list": self._cmd_list,

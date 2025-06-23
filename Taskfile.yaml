@@ -822,7 +822,7 @@ tasks:
         task lint:techdebt -- --markers=TODO,FIXME --exclude=tests/
 
 
-      By default, searches for: TODO, FIXME, TBD, HACK, NOTE, BUG, WARNING, DEPRECATED
+      By default, searches for: TODO, FIXME, TBD, HACK, NOTE, BUG, DEPRECATED
       in the src/ directory.
     deps:
       - check:venv

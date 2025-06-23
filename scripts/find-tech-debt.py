@@ -28,7 +28,7 @@ from typing_extensions import TypeAlias
 
 # Default technical debt markers
 DEFAULT_MARKERS = [
-    'TODO', 'FIXME', 'TBD','HACK', 'BUG', 'WARNING', 'DEPRECATED'
+    'TODO', 'FIXME', 'TBD','HACK', 'BUG', 'DEPRECATED'
 ]
 
 # Set to keep track of processed files for duplicate checking

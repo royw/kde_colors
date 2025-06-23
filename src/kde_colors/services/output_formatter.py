@@ -9,6 +9,9 @@ from kde_colors.interfaces.output_formatter import OutputFormatterInterface
 class ListTextOutputFormatter(OutputFormatterInterface):
     """Text formatter for the list command output."""
 
+    def __str__(self) -> str:
+        return "Text formatter for the list command output"
+
     def format(self, data: dict[str, Any]) -> str:
         """Format themes list data into human-readable text format.
 
@@ -54,6 +57,9 @@ class ListTextOutputFormatter(OutputFormatterInterface):
 class ListJsonOutputFormatter(OutputFormatterInterface):
     """JSON formatter for the list command output."""
 
+    def __str__(self) -> str:
+        return "JSON formatter for the list command output"
+
     def format(self, data: dict[str, Any]) -> str:
         """Format themes list data into JSON format.
 
@@ -96,6 +102,9 @@ class ListJsonOutputFormatter(OutputFormatterInterface):
 
 class ThemeTextOutputFormatter(OutputFormatterInterface):
     """Text formatter for the theme command output."""
+
+    def __str__(self) -> str:
+        return "Text formatter for the theme command output"
 
     def format(self, data: dict[str, Any]) -> str:
         """Format theme data into human-readable text format.
@@ -172,6 +181,9 @@ class ThemeTextOutputFormatter(OutputFormatterInterface):
 class ThemeJsonOutputFormatter(OutputFormatterInterface):
     """JSON formatter for the theme command output."""
 
+    def __str__(self) -> str:
+        return "JSON formatter for the theme command output"
+
     def format(self, data: dict[str, Any]) -> str:
         """Format theme data into JSON format.
 
@@ -186,6 +198,9 @@ class ThemeJsonOutputFormatter(OutputFormatterInterface):
 
 class PathsTextOutputFormatter(OutputFormatterInterface):
     """Text formatter for the paths command output."""
+
+    def __str__(self) -> str:
+        return "Text formatter for the paths command output"
 
     def format(self, data: dict[str, Any]) -> str:
         """Format paths data into human-readable text format.
@@ -244,6 +259,9 @@ class PathsTextOutputFormatter(OutputFormatterInterface):
 class PathsJsonOutputFormatter(OutputFormatterInterface):
     """JSON formatter for the paths command output."""
 
+    def __str__(self) -> str:
+        return "JSON formatter for the paths command output"
+
     def format(self, data: dict[str, Any]) -> str:
         """Format paths data into JSON format.
 
@@ -258,6 +276,9 @@ class PathsJsonOutputFormatter(OutputFormatterInterface):
 
 class ConfigTextOutputFormatter(OutputFormatterInterface):
     """Text formatter for the config command output."""
+
+    def __str__(self) -> str:
+        return "Text formatter for the config command output"
 
     def format(self, data: dict[str, Any]) -> str:
         """Format configuration data into readable text format.
@@ -287,6 +308,9 @@ class ConfigTextOutputFormatter(OutputFormatterInterface):
 
 class ConfigJsonOutputFormatter(OutputFormatterInterface):
     """JSON formatter for the config command output."""
+
+    def __str__(self) -> str:
+        return "JSON formatter for the config command output"
 
     def format(self, data: dict[str, Any]) -> str:
         """Format configuration data into JSON format.
