@@ -44,37 +44,61 @@ def kde_home() -> Generator[Path, None, None]:
         kde_config_dir = temp_home / ".config" / "kde"
         kde_config_dir.mkdir(parents=True, exist_ok=True)
 
-        # Create KDE data directories
+        # Create KDE data directories for themes
         kde_data_dir = temp_home / ".local" / "share" / "color-schemes"
         kde_data_dir.mkdir(parents=True, exist_ok=True)
+
+        # Create plasma theme directory (this is where the ThemeLoader actually looks)
+        plasma_theme_dir = temp_home / ".local" / "share" / "plasma" / "desktoptheme"
+        plasma_theme_dir.mkdir(parents=True, exist_ok=True)
 
         # Create a plasmarc file with active theme
         plasma_rc = kde_config_dir / "plasmarc"
         plasma_rc.parent.mkdir(parents=True, exist_ok=True)
         plasma_rc.write_text(
             """[Theme]
-name=Breeze
+name=Alfa
 """
         )
 
-        # Create example color scheme files
-        themes = ["Breeze", "BreezeLight", "BreezeDark", "Kubuntu", "Oxygen"]
+        # Create example color scheme files in both locations
+        # 1. In color-schemes directory (for KDE tools)
+        # 2. In plasma theme directory (where ThemeLoader looks)
+        themes = ["Alfa", "Bravo", "Charlie", "Delta", "Echo"]
+
+        # Create theme content template
+        theme_content = (
+            "[General]\n"
+            "Name={name}\n"
+            "ColorScheme={name}\n\n"
+            "[Colors:Button]\n"
+            "BackgroundNormal=255,255,255\n"
+            "ForegroundNormal=0,0,0\n\n"
+            "[Colors:View]\n"
+            "BackgroundNormal=240,240,240\n"
+            "ForegroundNormal=10,10,10\n\n"
+            "[Colors:Window]\n"
+            "BackgroundNormal=230,230,230\n"
+            "ForegroundNormal=20,20,20\n\n"
+            "[WM]\n"
+            "activeBackground=71,80,87\n"
+            "activeForeground=239,240,241\n"
+            "inactiveBackground=239,240,241\n"
+            "inactiveForeground=189,195,199"
+        )
+
         for theme in themes:
+            # Create in color-schemes directory
             theme_file = kde_data_dir / f"{theme}.colors"
-            theme_file.write_text(
-                f"""[General]
-Name={theme}
-ColorScheme={theme}
+            theme_file.write_text(theme_content.format(name=theme))
 
-[Colors:Button]
-BackgroundNormal=255,255,255
-ForegroundNormal=0,0,0
+            # Create theme directory in plasma/desktoptheme
+            theme_dir = plasma_theme_dir / theme
+            theme_dir.mkdir(parents=True, exist_ok=True)
 
-[Colors:View]
-BackgroundNormal=240,240,240
-ForegroundNormal=10,10,10
-"""
-            )
+            # Create colors file in the theme directory
+            colors_file = theme_dir / "colors"
+            colors_file.write_text(theme_content.format(name=theme))
 
         # Set environment variables
         os.environ["HOME"] = str(temp_home)

@@ -25,9 +25,10 @@ def test_list_text_output(run_cli: CallableABC[[list[str], Path | None], tuple[i
 
     # Verify output contains expected themes
     assert "Available desktop themes" in stdout
-    assert "breeze-dark" in stdout or "BreezeDark" in stdout
-    assert "breeze-light" in stdout or "Breeze" in stdout
-    assert "oxygen" in stdout or "Oxygen" in stdout
+    assert "Alfa" in stdout
+    assert "Bravo" in stdout
+    assert "Charlie" in stdout
+    assert "Delta" in stdout
 
 
 @pytest.mark.usefixtures("kde_home")
@@ -51,8 +52,8 @@ def test_list_json_output(
     assert isinstance(themes, list)
     assert len(themes) > 0
 
-    # Just check that we have themes data without enforcing specific names
-    # since they can vary by test environment
+    # Check that we have themes data matching our test environment
+    # with NATO phonetic alphabet names
 
 
 def test_list_output_to_file(
@@ -71,12 +72,13 @@ def test_list_output_to_file(
     # Verify stdout is empty (output went to file instead)
     assert not stdout.strip()
 
-    # Read file and verify content
+    # Verify file content contains theme names
     content = output_path.read_text()
     assert "Available desktop themes" in content
-    assert "breeze-dark" in content or "BreezeDark" in content
-    assert "breeze-light" in content or "Breeze" in content
-    assert "oxygen" in content or "Oxygen" in content
+    assert "Alfa" in content
+    assert "Bravo" in content
+    assert "Charlie" in content
+    assert "Delta" in content
 
 
 def test_list_json_output_to_file(
