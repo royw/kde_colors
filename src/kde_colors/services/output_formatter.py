@@ -117,20 +117,11 @@ class ThemeTextOutputFormatter(OutputFormatterInterface):
 
             Colors:
             [Colors:View]
-                BackgroundNormal: #fcfcfc
-                BackgroundAlternate: #eff0f1
-                ForegroundNormal: #232629
-                ForegroundInactive: #7f8c8d
-
-            [Colors:Window]
-                BackgroundNormal: #eff0f1
-                BackgroundAlternate: #e3e5e7
-
         Args:
-            data: Dictionary containing theme data with 'theme' key
+            data: Theme data dictionary
 
         Returns:
-            Formatted text string
+            Formatted text representation of theme data
         """
         if "error" in data:
             return f"Error: {data['error']}"
@@ -139,43 +130,94 @@ class ThemeTextOutputFormatter(OutputFormatterInterface):
             return "No theme data found."
 
         theme = data["theme"]
+        result = []
 
-        # Format basic theme info
-        result = [
+        # Format theme header
+        result.extend(self._format_theme_header(theme))
+
+        # Format color sections if present
+        if "Colors" in theme:
+            result.extend(self._format_color_sections(theme["Colors"]))
+
+        return "\n".join(result)
+
+    def _format_theme_header(self, theme: dict[str, Any]) -> list[str]:
+        """Format basic theme information.
+
+        Args:
+            theme: Theme data dictionary
+
+        Returns:
+            List of formatted lines with theme header information
+        """
+        return [
             f"Name: {theme.get('Name', 'Unknown')}",
             f"Id: {theme.get('Id', 'Unknown')}",
             f"Package: {theme.get('Package', 'Unknown')}",
             f"Path: {theme.get('Path', 'Unknown')}",
         ]
 
-        # Add colors sections if present
-        if "Colors" in theme:
-            result.append("\nColors:")
+    def _format_color_sections(self, colors: dict[str, Any]) -> list[str]:
+        """Format all color sections.
 
-            # Sort the color sections for consistent output
-            color_sections = sorted(theme["Colors"].keys())
+        Args:
+            colors: Dictionary of color sections
 
-            for section in color_sections:
-                result.append(f"[{section}]")
+        Returns:
+            List of formatted lines for all color sections
+        """
+        result = ["\nColors:"]
 
-                if isinstance(theme["Colors"][section], dict):
-                    # Sort color entries for consistent output
-                    color_entries = sorted(theme["Colors"][section].keys())
+        # Sort the color sections for consistent output
+        color_sections = sorted(colors.keys())
 
-                    for color_key in color_entries:
-                        color_value = theme["Colors"][section][color_key]
+        for section in color_sections:
+            result.append(f"[{section}]")
 
-                        # Format RGB values as hex if they're lists of integers
-                        if isinstance(color_value, list) and len(color_value) == 3:
-                            r, g, b = color_value
-                            hex_color = f"#{r:02x}{g:02x}{b:02x}"
-                            result.append(f"    {color_key}: {hex_color} (RGB: {r},{g},{b})")
-                        else:
-                            result.append(f"    {color_key}: {color_value}")
+            if isinstance(colors[section], dict):
+                result.extend(self._format_color_entries(colors[section]))
+                # Add blank line after each section
+                result.append("")
 
-                    result.append("")
+        return result
 
-        return "\n".join(result)
+    def _format_color_entries(self, section_colors: dict[str, Any]) -> list[str]:
+        """Format individual color entries within a section.
+
+        Args:
+            section_colors: Dictionary of color entries for a section
+
+        Returns:
+            List of formatted lines for color entries
+        """
+        result = []
+
+        # Sort color entries for consistent output
+        color_entries = sorted(section_colors.keys())
+
+        for color_key in color_entries:
+            color_value = section_colors[color_key]
+            result.append(self._format_color_entry(color_key, color_value))
+
+        return result
+
+    def _format_color_entry(self, key: str, value: Any) -> str:
+        """Format a single color entry.
+
+        Args:
+            key: Color name/key
+            value: Color value (either RGB list or string)
+
+        Returns:
+            Formatted color entry line
+        """
+        # Format RGB values as hex if they're lists of integers
+        if isinstance(value, list) and len(value) == 3:
+            r, g, b = value
+            hex_color = f"#{r:02x}{g:02x}{b:02x}"
+            return f"    {key}: {hex_color} (RGB: {r},{g},{b})"
+
+        return f"    {key}: {value}"
 
 
 class ThemeJsonOutputFormatter(OutputFormatterInterface):
