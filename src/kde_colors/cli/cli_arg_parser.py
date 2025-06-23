@@ -56,7 +56,7 @@ def create_parser() -> argparse.ArgumentParser:
         description="List all available KDE themes installed on the system",
     )
     list_parser.add_argument(
-        "-f", "--format", choices=["text", "json"], default="json", help="Output format (default: %(default)s)"
+        "-f", "--format", choices=["text", "json"], default="text", help="Output format (default: %(default)s)"
     )
     list_parser.add_argument(
         "-o", "--output", metavar="PATH", help="Write output to the specified file instead of stdout"
@@ -90,6 +90,19 @@ def create_parser() -> argparse.ArgumentParser:
         "-f", "--format", choices=["text", "json"], default="text", help="Output format (default: %(default)s)"
     )
     theme_parser.add_argument(
+        "-o", "--output", metavar="PATH", help="Write output to the specified file instead of stdout"
+    )
+
+    # Config command
+    config_parser = subparsers.add_parser(
+        "config",
+        help="Display configuration paths",
+        description="Show configuration, cache, and data directories for the application",
+    )
+    config_parser.add_argument(
+        "-f", "--format", choices=["text", "json"], default="text", help="Output format (default: %(default)s)"
+    )
+    config_parser.add_argument(
         "-o", "--output", metavar="PATH", help="Write output to the specified file instead of stdout"
     )
 

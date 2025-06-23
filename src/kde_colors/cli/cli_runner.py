@@ -33,15 +33,10 @@ class ExitCode(IntEnum):
     INVALID_ARGUMENTS = 2
     THEME_NOT_FOUND = 3
     IO_ERROR = 4
-    NOT_IMPLEMENTED = 5
 
 
 class CLIRunner:
     """Orchestrates the execution of commands."""
-
-    # Error messages
-    ERROR_THEME_NAME_REQUIRED = "Theme name must be provided"
-    ERROR_UNKNOWN_COMMAND = "Unknown command '{command}'"
 
     def __init__(
         self,
@@ -81,12 +76,13 @@ class CLIRunner:
                 "list": self._cmd_list,
                 "paths": self._cmd_paths,
                 "theme": self._cmd_theme,
+                "config": self._cmd_config,
             }
 
             handler = handlers.get(arguments.command)
             if not handler:
                 # This should not happen if the argument parser is configured correctly
-                error_msg = self.ERROR_UNKNOWN_COMMAND.format(command=arguments.command)
+                error_msg = f"Unknown command '{arguments.command}'"
                 logger.error(error_msg)
                 return ExitCode.INVALID_ARGUMENTS
 
@@ -119,7 +115,7 @@ class CLIRunner:
             logger.error(f"Error: {e}")
             return ExitCode.GENERAL_ERROR
 
-    def _write(self, data: str, output_path: Path | None = None) -> int:
+    def _write(self, data: str, output_path: Path | str | None = None) -> int:
         """Write data to output path or stdout.
 
         Args:
@@ -131,13 +127,15 @@ class CLIRunner:
         """
         try:
             if output_path:
+                # Convert string path to Path object if needed
+                path_obj = Path(output_path) if isinstance(output_path, str) else output_path
                 # Ensure the parent directory exists
-                output_path.parent.mkdir(parents=True, exist_ok=True)
+                path_obj.parent.mkdir(parents=True, exist_ok=True)
                 # Write to file
-                self.file_system.write_text(output_path, data)
+                self.file_system.write_text(path_obj, data)
             else:
                 # Write to stdout
-                print(data)
+                self.file_system.write_stdout(data)
             return ExitCode.SUCCESS
         except Exception as e:
             logger.error(f"Error writing output: {e}")
@@ -203,6 +201,24 @@ class CLIRunner:
 
         return {"theme": theme}
 
+    def _cmd_config(self, _unused: str | None = None) -> dict[str, Any]:
+        """
+        Handle the 'config' command.
+
+        Shows configuration paths used by the application.
+
+        Args:
+            _unused: Unused parameter to match the command handler signature pattern
+
+        Returns:
+            Dictionary with configuration paths
+        """
+        return {
+            "config_dir": self.xdg.get_config_dir(),
+            "cache_dir": self.xdg.get_cache_dir(),
+            "data_dir": self.xdg.get_data_dir(),
+        }
+
 
 def run_cli(
     args: list[str] | None = None,
@@ -223,13 +239,9 @@ def run_cli(
     Returns:
         Exit code as defined in ExitCode enum
     """
-    if file_system is None:
-        file_system = StdFileSystem()
-    if environment is None:
-        environment = StdEnvironment()
-    if xdg is None:
-        xdg = StdXDG(file_system, environment)
-    if theme_loader is None:
-        theme_loader = ThemeLoader(file_system, xdg)
+    file_system = file_system or StdFileSystem()
+    environment = environment or StdEnvironment()
+    xdg = xdg or StdXDG(file_system, environment)
+    theme_loader = theme_loader or ThemeLoader(file_system, xdg)
 
     return CLIRunner(file_system, xdg, environment, theme_loader).run(args)

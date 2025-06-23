@@ -19,6 +19,9 @@ class StdFileSystem(FileSystemInterface):
     providing read-only operations to access files and directories.
     """
 
+    def __init__(self) -> None:
+        """Initialize the file system implementation."""
+
     def read_file(self, path: str) -> str:
         """
         Read file contents as a string.
@@ -35,6 +38,24 @@ class StdFileSystem(FileSystemInterface):
         """
         return Path(path).read_text(encoding="utf-8")
 
+    def read_text(self, path: Path | str) -> str:
+        """
+        Read text content from a file.
+
+        Args:
+            path: Path to the file
+
+        Returns:
+            The contents of the file as a string
+
+        Raises:
+            FileNotFoundError: If the file does not exist
+            PermissionError: If the file cannot be read due to permissions
+        """
+        # Convert to Path if it's a string
+        file_path = Path(path) if isinstance(path, str) else path
+        return file_path.read_text(encoding="utf-8")
+
     def write_text(self, path: Path | str, content: str) -> None:
         """
         Write text content to a file.
@@ -44,27 +65,23 @@ class StdFileSystem(FileSystemInterface):
             content: Text content to write to the file
 
         Raises:
-            FileNotFoundError: If the parent directory does not exist
-            PermissionError: If the file cannot be written due to permissions
+            OSError: If there is an error writing to the file
         """
-        # Convert to Path if it's a string
-        if isinstance(path, str):
-            path = Path(path)
+        # Ensure the directory exists
+        path = Path(path)
+        path.parent.mkdir(parents=True, exist_ok=True)
 
         # Write the content
         path.write_text(content, encoding="utf-8")
 
-    def file_exists(self, path: str) -> bool:
+    def write_stdout(self, content: str) -> None:
         """
-        Check if a file exists.
+        Write content to standard output.
 
         Args:
-            path: Path to check
-
-        Returns:
-            True if the path exists and is a file, False otherwise
+            content: Text content to write to stdout
         """
-        return Path(path).is_file()
+        print(content)
 
     def exists(self, path: str) -> bool:
         """
@@ -125,52 +142,12 @@ class StdFileSystem(FileSystemInterface):
         Walk a directory tree.
 
         Args:
-            path: Root path to start walking from
+            path: Path to the directory to walk
 
         Returns:
-            Iterator yielding tuples of (dirpath, dirnames, filenames)
+            Iterator over (dirpath, dirnames, filenames)
         """
         return os.walk(path)
-
-    def resolve_path(self, path: str) -> str:
-        """
-        Resolve a path to its absolute form.
-
-        Args:
-            path: Path to resolve
-
-        Returns:
-            Resolved absolute path
-        """
-        return str(Path(path).resolve())
-
-    def expand_path(self, path: str) -> str:
-        """
-        Expand user and environment variables in path.
-
-        Args:
-            path: Path to expand
-
-        Returns:
-            Expanded path
-        """
-        # Handle environment variables first
-        expanded = os.path.expandvars(path)
-        # Then expand user directory
-        return str(Path(expanded).expanduser())
-
-    def list_files(self, path: str) -> list[str]:
-        """
-        List files in a directory.
-
-        Args:
-            path: Directory to list files from
-
-        Returns:
-            List of filenames in the directory
-        """
-        path_obj = Path(path)
-        return [p.name for p in path_obj.iterdir() if p.is_file()]
 
     def list_dir(self, path: str) -> list[str]:
         """

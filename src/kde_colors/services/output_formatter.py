@@ -37,9 +37,13 @@ class ListTextOutputFormatter(OutputFormatterInterface):
 
         # Sort themes by name for consistent output
         sorted_themes = sorted(themes.keys())
+        current_theme = data.get("current_theme", "")
 
         for theme_name in sorted_themes:
-            if themes[theme_name]["current"]:
+            # Check for current theme in two ways:
+            # 1. theme_name matches current_theme at the root level
+            # 2. theme has a current=True property
+            if (theme_name == current_theme) or (themes[theme_name].get("current", False)):
                 result.append(f"  * {theme_name}")
             else:
                 result.append(f"  {theme_name}")
@@ -252,12 +256,57 @@ class PathsJsonOutputFormatter(OutputFormatterInterface):
         return json.dumps(data, indent=2)
 
 
+class ConfigTextOutputFormatter(OutputFormatterInterface):
+    """Text formatter for the config command output."""
+
+    def format(self, data: dict[str, Any]) -> str:
+        """Format configuration data into readable text format.
+
+        Args:
+            data: Dictionary containing configuration paths data
+
+        Returns:
+            Formatted text string
+        """
+        if "error" in data:
+            return f"Error: {data['error']}"
+
+        result = ["Configuration Paths:"]
+
+        if "config_dir" in data:
+            result.append(f"  Config Directory: {data['config_dir']}")
+
+        if "cache_dir" in data:
+            result.append(f"  Cache Directory: {data['cache_dir']}")
+
+        if "data_dir" in data:
+            result.append(f"  Data Directory: {data['data_dir']}")
+
+        return "\n".join(result)
+
+
+class ConfigJsonOutputFormatter(OutputFormatterInterface):
+    """JSON formatter for the config command output."""
+
+    def format(self, data: dict[str, Any]) -> str:
+        """Format configuration data into JSON format.
+
+        Args:
+            data: Dictionary containing configuration paths data
+
+        Returns:
+            JSON formatted string
+        """
+        return json.dumps(data, indent=2)
+
+
 def get_output_formatter(format: str, command: str) -> OutputFormatterInterface:
     """Get the output formatter for the given format."""
     formatters: dict[str, dict[str, OutputFormatterInterface]] = {
         "list": {"text": ListTextOutputFormatter(), "json": ListJsonOutputFormatter()},
         "theme": {"text": ThemeTextOutputFormatter(), "json": ThemeJsonOutputFormatter()},
         "paths": {"text": PathsTextOutputFormatter(), "json": PathsJsonOutputFormatter()},
+        "config": {"text": ConfigTextOutputFormatter(), "json": ConfigJsonOutputFormatter()},
     }
     if command not in formatters:
         msg = f"Unknown command: {command}"

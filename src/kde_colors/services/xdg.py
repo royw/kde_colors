@@ -84,9 +84,8 @@ class StdXDG(XDGInterface):
 
         The environment variable with the specified name is read, and its
         value split on colons and returned as a list of paths. If the
-        environment variable is not set, or set to the empty string, the
-        default value is returned. Relative paths are ignored, as per the
-        specification.
+        environment variable is not set or empty, the default value is returned.
+        Relative paths are ignored, as per the specification.
 
         Parameters
         ----------
@@ -99,17 +98,12 @@ class StdXDG(XDGInterface):
         -------
         list[Path]
             Value from environment or default.
-
         """
         if value := self.environment.getenv(variable):
             paths = [Path(path) for path in value.split(":") if Path(path).is_absolute()]
             if paths:
                 return paths
         return default
-
-    def xdg_cache_home(self) -> Path:
-        """Return a Path corresponding to XDG_CACHE_HOME."""
-        return self._path_from_env("XDG_CACHE_HOME", self.file_system.home() / ".cache")
 
     def xdg_config_dirs(self) -> list[Path]:
         """Return a list of Paths corresponding to XDG_CONFIG_DIRS."""
@@ -129,17 +123,27 @@ class StdXDG(XDGInterface):
         """Return a Path corresponding to XDG_DATA_HOME."""
         return self._path_from_env("XDG_DATA_HOME", self.file_system.home() / ".local" / "share")
 
-    def xdg_runtime_dir(self) -> Path | None:
-        """Return a Path corresponding to XDG_RUNTIME_DIR.
+    def get_config_dir(self) -> str:
+        """Get the application config directory path.
 
-        If the XDG_RUNTIME_DIR environment variable is not set, None will be
-        returned as per the specification.
-
+        Returns:
+            String representation of the XDG config directory path
         """
-        if (value := self.environment.getenv("XDG_RUNTIME_DIR")) and (path := Path(value)).is_absolute():
-            return path
-        return None
+        return str(self.xdg_config_home() / "kde-colors")
 
-    def xdg_state_home(self) -> Path:
-        """Return a Path corresponding to XDG_STATE_HOME."""
-        return self._path_from_env("XDG_STATE_HOME", self.file_system.home() / ".local" / "state")
+    def get_cache_dir(self) -> str:
+        """Get the application cache directory path.
+
+        Returns:
+            String representation of the XDG cache directory path
+        """
+        cache_home = self._path_from_env("XDG_CACHE_HOME", self.file_system.home() / ".cache")
+        return str(cache_home / "kde-colors")
+
+    def get_data_dir(self) -> str:
+        """Get the application data directory path.
+
+        Returns:
+            String representation of the XDG data directory path
+        """
+        return str(self.xdg_data_home() / "kde-colors")

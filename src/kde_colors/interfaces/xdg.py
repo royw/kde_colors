@@ -7,10 +7,6 @@ from typing import Protocol
 class XDGInterface(Protocol):
     """XDG Base Directory Specification injector."""
 
-    def xdg_cache_home(self) -> Path:
-        """Return a Path corresponding to XDG_CACHE_HOME."""
-        ...
-
     def xdg_config_dirs(self) -> list[Path]:
         """Return a list of Paths corresponding to XDG_CONFIG_DIRS."""
         ...
@@ -27,10 +23,14 @@ class XDGInterface(Protocol):
         """Return a Path corresponding to XDG_DATA_HOME."""
         ...
 
-    def xdg_runtime_dir(self) -> Path | None:
-        """Return a Path corresponding to XDG_RUNTIME_DIR or None if not available."""
+    def get_config_dir(self) -> str:
+        """Get the application config directory path."""
         ...
 
-    def xdg_state_home(self) -> Path:
-        """Return a Path corresponding to XDG_STATE_HOME."""
+    def get_cache_dir(self) -> str:
+        """Get the application cache directory path."""
+        ...
+
+    def get_data_dir(self) -> str:
+        """Get the application data directory path."""
         ...

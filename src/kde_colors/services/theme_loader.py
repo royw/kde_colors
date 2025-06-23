@@ -22,7 +22,6 @@ class ThemeLoader(ThemeLoaderInterface):
 
     # Config keys
     THEME_KEY = "Theme"
-    COLOR_SCHEME_KEY = "ColorScheme"
     LOOK_AND_FEEL_KEY = "LookAndFeelPackage"
     PLASMA_THEME_CONFIG_KEY = "Theme"
     PLASMA_THEME_NAME_KEY = "name"
@@ -233,27 +232,19 @@ class ThemeLoader(ThemeLoaderInterface):
         """Normalize the theme name."""
         return name.lower().replace(" ", "").replace("-", "")
 
-    @cached_property
-    def _theme_paths_cache(self) -> list[Path]:
-        """Cached property for theme paths to avoid repeated file system access."""
-        return self._get_theme_paths_impl()
-
-    def _get_theme_paths(self) -> list[Path]:
-        """Get theme paths, using cached value."""
-        return self._theme_paths_cache
-
     def get_current_theme(self) -> str | None:
         """
-        Get the name of the current active KDE theme.
+                Get the name of the current active KDE theme.
 
-        Checks configuration files in the following order of precedence:
-        1. $XDG_CONFIG_HOME/kdedefaults/package
-        2. $XDG_CONFIG_HOME/kdedefaults/kdeglobals
-        3. $XDG_CONFIG_HOME/kdeglobals
-        4. $XDG_CONFIG_HOME/plasmarc
+                Checks configuration files in the following order of precedence:
+        {{ ... }}
+                1. $XDG_CONFIG_HOME/kdedefaults/package
+                2. $XDG_CONFIG_HOME/kdedefaults/kdeglobals
+                3. $XDG_CONFIG_HOME/kdeglobals
+                4. $XDG_CONFIG_HOME/plasmarc
 
-        Returns:
-            The current theme name or None if not found
+                Returns:
+                    The current theme name or None if not found
         """
         config_home = self.xdg.xdg_config_home()
 
