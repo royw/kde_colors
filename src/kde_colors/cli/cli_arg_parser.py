@@ -93,19 +93,6 @@ def create_parser() -> argparse.ArgumentParser:
         "-o", "--output", metavar="PATH", help="Write output to the specified file instead of stdout"
     )
 
-    # Config command
-    config_parser = subparsers.add_parser(
-        "config",
-        help="Display configuration paths",
-        description="Show configuration, cache, and data directories for the application",
-    )
-    config_parser.add_argument(
-        "-f", "--format", choices=["text", "json"], default="text", help="Output format (default: %(default)s)"
-    )
-    config_parser.add_argument(
-        "-o", "--output", metavar="PATH", help="Write output to the specified file instead of stdout"
-    )
-
     return parser
 
 

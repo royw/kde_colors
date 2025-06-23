@@ -88,7 +88,6 @@ class CLIRunner:
                 "list": self._cmd_list,
                 "paths": self._cmd_paths,
                 "theme": self._cmd_theme,
-                "config": self._cmd_config,
             }
 
             handler = handlers.get(arguments.command)
@@ -212,24 +211,6 @@ class CLIRunner:
             return {"error": f"Theme '{theme_name}' not found", "exit_code": ExitCode.THEME_NOT_FOUND}
 
         return {"theme": theme}
-
-    def _cmd_config(self, _unused: str | None = None) -> dict[str, Any]:
-        """
-        Handle the 'config' command.
-
-        Shows configuration paths used by the application.
-
-        Args:
-            _unused: Unused parameter to match the command handler signature pattern
-
-        Returns:
-            Dictionary with configuration paths
-        """
-        return {
-            "config_dir": self.xdg.get_config_dir(),
-            "cache_dir": self.xdg.get_cache_dir(),
-            "data_dir": self.xdg.get_data_dir(),
-        }
 
 
 def run_cli(

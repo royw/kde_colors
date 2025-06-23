@@ -122,28 +122,3 @@ class StdXDG(XDGInterface):
     def xdg_data_home(self) -> Path:
         """Return a Path corresponding to XDG_DATA_HOME."""
         return self._path_from_env("XDG_DATA_HOME", self.file_system.home() / ".local" / "share")
-
-    def get_config_dir(self) -> str:
-        """Get the application config directory path.
-
-        Returns:
-            String representation of the XDG config directory path
-        """
-        return str(self.xdg_config_home() / "kde-colors")
-
-    def get_cache_dir(self) -> str:
-        """Get the application cache directory path.
-
-        Returns:
-            String representation of the XDG cache directory path
-        """
-        cache_home = self._path_from_env("XDG_CACHE_HOME", self.file_system.home() / ".cache")
-        return str(cache_home / "kde-colors")
-
-    def get_data_dir(self) -> str:
-        """Get the application data directory path.
-
-        Returns:
-            String representation of the XDG data directory path
-        """
-        return str(self.xdg_data_home() / "kde-colors")

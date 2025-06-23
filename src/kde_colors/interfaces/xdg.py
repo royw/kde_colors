@@ -22,15 +22,3 @@ class XDGInterface(Protocol):
     def xdg_data_home(self) -> Path:
         """Return a Path corresponding to XDG_DATA_HOME."""
         ...
-
-    def get_config_dir(self) -> str:
-        """Get the application config directory path."""
-        ...
-
-    def get_cache_dir(self) -> str:
-        """Get the application cache directory path."""
-        ...
-
-    def get_data_dir(self) -> str:
-        """Get the application data directory path."""
-        ...
