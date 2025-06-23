@@ -63,7 +63,10 @@ class CLIRunner:
         if int(log_level) >= len(levels):
             log_level = str(len(levels) - 1)
         level = levels[int(log_level)]
-        logger.add(sys.stdout, level=level)
+        # Add normal logs to stdout
+        logger.add(sys.stdout, level=level, filter=lambda record: record["level"].no < logger.level("ERROR").no)
+        # Add error logs to stderr
+        logger.add(sys.stderr, level="ERROR")
         logger.info("log level: {}", level)
 
     def run(self, args: list[str] | None = None) -> int:
