@@ -1,5 +1,29 @@
 """
-Module for executing CLI commands based on parsed arguments.
+CLI command execution module.
+
+This module provides the implementation for executing CLI commands based on parsed arguments.
+It serves as the core orchestrator that connects the user's command line input to the appropriate
+application logic and service implementations.
+
+Why this module exists:
+- Decouples command execution from argument parsing
+- Coordinates dependency injection for required services
+- Manages command execution flow and exit codes
+- Handles output formatting and redirection
+
+How it works:
+- Creates all required service instances (FileSystem, ThemeLoader, etc.)
+- Maps command names to handler methods using a dispatch dictionary
+- Calls the appropriate handler based on the command from parsed arguments
+- Formats and outputs the results using output formatters
+- Returns appropriate exit codes to the shell
+
+Key Functions:
+- run_cli(): The main entry point for the application, responsible for instantiating and running the CLIRunner class.
+  This function is called directly by __main__.py and serves as the package's console script entry point and a test entry point.
+
+This module implements the Command pattern, where each CLI command is handled by a dedicated
+method that processes arguments and delegates to appropriate services.
 """
 
 from __future__ import annotations
@@ -84,16 +108,17 @@ class CLIRunner:
             self._setup_logging(arguments.log_level)
             logger.debug("arguments: {}", arguments)
 
+            # Get the output formatter
             format = "json" if arguments.json else "text"
             formatter: OutputFormatterInterface = get_output_formatter(format, arguments.command)
             logger.debug("formatter: {}", formatter)
 
+            # Get the command handler
             handlers: dict[str, Callable[[str | None], dict[str, Any]]] = {
                 "list": self._cmd_list,
                 "paths": self._cmd_paths,
                 "theme": self._cmd_theme,
             }
-
             handler = handlers.get(arguments.command)
             if not handler:
                 # This should not happen if the argument parser is configured correctly
@@ -112,7 +137,7 @@ class CLIRunner:
                 exit_code = result.get("exit_code", ExitCode.GENERAL_ERROR)
                 return int(exit_code)
 
-            # Format and write the result
+            # Format and write the result from the command handler
             return self._write(formatter.format(result), arguments.output)
 
         except ValueError as e:
@@ -130,7 +155,7 @@ class CLIRunner:
             logger.error(f"Error: {e}")
             return ExitCode.GENERAL_ERROR
 
-    def _write(self, data: str, output_path: Path | str | None = None) -> int:
+    def _write(self, data: str, output_path: Path | None = None) -> int:
         """Write data to output path or stdout.
 
         Args:
@@ -142,12 +167,11 @@ class CLIRunner:
         """
         try:
             if output_path:
-                # Convert string path to Path object if needed
-                path_obj = Path(output_path) if isinstance(output_path, str) else output_path
                 # Ensure the parent directory exists
-                path_obj.parent.mkdir(parents=True, exist_ok=True)
+                output_path.parent.mkdir(parents=True, exist_ok=True)
                 # Write to file
-                self.file_system.write_text(path_obj, data)
+                logger.info("Writing output to file: {}", output_path)
+                self.file_system.write_text(output_path, data)
             else:
                 # Write to stdout
                 self.file_system.write_stdout(data)
@@ -236,9 +260,4 @@ def run_cli(
     Returns:
         Exit code as defined in ExitCode enum
     """
-    file_system = file_system or StdFileSystem()
-    environment = environment or StdEnvironment()
-    xdg = xdg or StdXDG(file_system, environment)
-    theme_loader = theme_loader or ThemeLoader(file_system, xdg)
-
     return CLIRunner(file_system, xdg, environment, theme_loader).run(args)

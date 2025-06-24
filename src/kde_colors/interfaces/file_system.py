@@ -1,5 +1,26 @@
 """
-FileSystem interface that abstracts read-only file system operations.
+File system interface module.
+
+This module defines the FileSystemInterface protocol that establishes the contract
+for file system operations used throughout the application. It serves as an abstraction
+layer between the application logic and the actual file system implementation.
+
+Why this interface exists:
+- Decouples the application from direct file system dependencies
+- Enables thorough unit testing using test doubles instead of real file system
+- Provides a consistent API for file operations across the application
+- Supports the dependency inversion principle of clean architecture
+
+Implementations of this interface are responsible for:
+- Reading and writing text files
+- Checking if files or directories exist
+- Creating directories
+- Listing directory contents
+- Finding files that match glob patterns
+- Manipulating paths (absolute paths, joining paths, etc.)
+
+The @runtime_checkable decorator allows runtime type checking of objects
+that implement this protocol through isinstance() checks.
 """
 
 from __future__ import annotations

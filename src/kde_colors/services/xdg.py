@@ -1,3 +1,22 @@
+"""XDG directories service implementation module.
+
+This module provides the concrete implementation (StdXDG) of the XDGInterface,
+responsible for determining standard XDG Base Directory paths specific to KDE Plasma.
+
+The XDG Base Directory Specification defines locations for configuration, data, and cache files,
+which are crucial for correctly identifying KDE theme locations across different distributions
+and configurations.
+
+This service exists to:
+- Abstract platform-specific path resolution from the application logic
+- Provide consistent access to standard KDE configuration and theme directories
+- Support testing by allowing path resolution to be replaced with test doubles
+
+The implementation determines both system-wide and user-specific paths following
+the XDG specification, with special handling for KDE-specific directories like plasma themes
+and color schemes.
+"""
+
 from __future__ import annotations
 
 from pathlib import Path

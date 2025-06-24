@@ -1,3 +1,18 @@
+"""Output formatter service implementations module.
+
+This module provides concrete implementations of the OutputFormatterInterface for different
+output formats (text and JSON) and CLI commands. It's responsible for formatting data from
+the application's internal representation into user-friendly output formats.
+
+The module contains formatter classes for each command (list, path, theme) and output format
+combination. This separation allows for specialized formatting logic tailored to each
+command's unique data structure while maintaining a consistent interface.
+
+It also provides a factory function that selects the appropriate formatter based on
+command name and desired output format, decoupling the CLI runner from formatter implementation
+details.
+"""
+
 from __future__ import annotations
 
 import json

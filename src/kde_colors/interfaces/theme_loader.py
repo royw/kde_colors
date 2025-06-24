@@ -1,5 +1,23 @@
 """
-ThemeLoader interface for loading and querying KDE themes.
+ThemeLoader interface module.
+
+This module defines the ThemeLoaderInterface protocol that establishes the contract
+for loading and querying KDE Plasma themes. It serves as the boundary between the CLI
+commands and the underlying theme implementation details.
+
+Why this interface exists:
+- Enforces a consistent API for accessing theme data
+- Allows alternative implementations for testing or different backends
+- Decouples theme discovery/loading logic from CLI command handlers
+
+Implementations of this interface are responsible for:
+- Finding all available KDE themes in the system
+- Retrieving the currently active theme
+- Loading detailed theme information (colors, metadata)
+- Parsing theme files and color values
+
+CLI commands interact only with this interface, not directly with any specific implementation,
+following the dependency inversion principle of clean architecture.
 """
 
 from __future__ import annotations

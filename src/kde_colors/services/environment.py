@@ -1,5 +1,21 @@
 """
-EnvironmentService for handling environment variables and system environment.
+Environment service implementation module.
+
+This module provides the concrete implementation (StdEnvironment) of the EnvironmentInterface,
+responsible for accessing and interacting with operating system environment variables.
+
+Why this module exists:
+- Abstracts direct environment variable access to improve testability
+- Provides a consistent interface for environment operations
+- Allows for dependency injection to replace real environment access with test doubles
+
+The implementation handles:
+- Retrieving environment variable values
+- Providing fallback values for missing environment variables
+- Getting the current user's home directory
+
+This service is particularly important for the application to locate user-specific
+KDE configuration directories that may vary based on environment settings.
 """
 
 from __future__ import annotations

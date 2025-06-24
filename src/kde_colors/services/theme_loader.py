@@ -1,3 +1,20 @@
+"""Theme loader service implementation module.
+
+This module provides the concrete implementation of the ThemeLoaderInterface responsible for
+discovering, loading, and parsing KDE Plasma desktop themes from the file system.
+
+It handles:
+- Finding all available themes in standard KDE theme directories
+- Loading theme metadata and color information from theme files
+- Parsing color values from various formats (RGB strings, hex codes)
+- Identifying the currently active theme from KDE configuration
+
+The module uses the dependency injection pattern, requiring a FileSystemInterface
+to perform file operations, making it testable and decoupled from direct file system access.
+"`cached_property` decorators are used to optimize performance by caching expensive
+file system operations results.
+"""
+
 from __future__ import annotations
 
 import configparser

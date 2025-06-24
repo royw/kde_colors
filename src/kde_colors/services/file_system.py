@@ -1,5 +1,22 @@
 """
-File system service implementation for FileSystemInterface.
+File system service implementation module.
+
+This module provides the concrete implementation (StdFileSystem) of the FileSystemInterface
+for interacting with the operating system's file system. It serves as a wrapper around Python's
+built-in file system operations, providing a clean, testable interface.
+
+Why this module exists:
+- Abstracts direct file system operations to support testing without filesystem access
+- Provides a consistent interface for all file operations needed by the application
+- Centralizes file system access logic to reduce code duplication
+
+The implementation handles:
+- Reading and writing text files
+- Checking if files and directories exist
+- Creating directories
+- Listing directory contents
+- Globbing files based on patterns
+- Getting absolute and home directory paths
 """
 
 from __future__ import annotations

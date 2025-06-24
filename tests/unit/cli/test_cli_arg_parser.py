@@ -5,6 +5,7 @@ Unit tests for the CLI argument parser.
 from __future__ import annotations
 
 import unittest
+from pathlib import Path
 
 import pytest
 
@@ -59,7 +60,7 @@ class TestCliArgParser(unittest.TestCase):
         args = parse_args(["list", "--json", "--output", "themes.json"])
         assert args.command == "list"
         assert args.json
-        assert args.output == "themes.json"
+        assert args.output == Path("themes.json")
 
     def test_paths_command(self) -> None:
         """Test the 'paths' command parsing."""
@@ -73,7 +74,7 @@ class TestCliArgParser(unittest.TestCase):
         args = parse_args(["paths", "--json", "--output", "paths.json"])
         assert args.command == "paths"
         assert args.json
-        assert args.output == "paths.json"
+        assert args.output == Path("paths.json")
 
     def test_theme_command(self) -> None:
         """Test the 'theme' command parsing."""
@@ -93,7 +94,7 @@ class TestCliArgParser(unittest.TestCase):
         assert args.command == "theme"
         assert args.theme_name == "Breeze"
         assert args.json
-        assert args.output == "theme.json"
+        assert args.output == Path("theme.json")
 
     def test_required_command(self) -> None:
         """Test that a command is required."""

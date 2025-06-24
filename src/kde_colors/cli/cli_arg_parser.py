@@ -1,20 +1,37 @@
 """
 Command-line argument parsing module.
 
-This module defines and handles command-line argument parsing using the sub-parser pattern
-from Python's argparse module.
+This module defines and handles command-line argument parsing for the KDE Colors CLI tool.
+It uses the sub-parser pattern from Python's argparse module to implement various commands
+and their specific arguments.
+
+Why this module exists:
+- Separates argument parsing from command execution logic
+- Provides a clear definition of the CLI's public interface
+- Centralizes argument validation and help text
+
+How it works:
+- Creates a main parser with global arguments (--json, --output, etc.)
+- Defines subparsers for each command (list, theme, paths)
+- Specifies arguments unique to each command
+- Returns a parsed argument namespace to be processed by the CLI runner
+
+This module serves as the implementation of the user-facing interface described in
+the user guide documentation. The command structure, options, and argument handling
+are all defined here according to the CLI specifications.
 """
 
 from __future__ import annotations
 
 import argparse
 import importlib.metadata
+from pathlib import Path
 
 
 def _add_global_options(sub_parser: argparse.ArgumentParser) -> None:
     sub_parser.add_argument("-j", "--json", action="store_true", help="Output as JSON")
     sub_parser.add_argument(
-        "-o", "--output", metavar="PATH", help="Write output to the specified file instead of stdout"
+        "-o", "--output", metavar="PATH", type=Path, help="Write output to the specified file instead of stdout"
     )
     sub_parser.add_argument(
         "-v",
