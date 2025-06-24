@@ -51,11 +51,11 @@ def test_theme_current(run_cli: CallableABC[[list[str], Path | None], tuple[int,
     # In our test environment, the current theme won't exist, so we expect an error
     exit_code, stdout, stderr = run_cli(["theme"], None)
 
-    # Since our test environment doesn't have a properly configured KDE theme,
-    # we expect an error about the theme not being found
+    # Since our test environment has a 'default' theme configured but the theme file doesn't exist,
+    # we expect a specific error about that theme not being found
     assert exit_code != 0, "Expected non-zero exit code for missing current theme"
     assert "Error" in stderr
-    assert "not found" in stderr
+    assert "Theme 'default' not found" in stderr
     assert stdout.strip() == "", "Expected empty stdout when theme not found"
 
 
