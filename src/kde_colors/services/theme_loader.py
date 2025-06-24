@@ -264,21 +264,26 @@ class ThemeLoader(ThemeLoaderInterface):
                     The current theme name or None if not found
         """
         config_home = self.xdg.xdg_config_home()
+        logger.debug("config_home: {}", config_home)
 
         # Check configuration files in order of precedence
         theme_name = self._check_kdedefaults_package(config_home)
+        logger.debug("theme_name: {}", theme_name)
         if theme_name:
             return theme_name
 
         theme_name = self._check_kdedefaults_kdeglobals(config_home)
+        logger.debug("theme_name: {}", theme_name)
         if theme_name:
             return theme_name
 
         theme_name = self._check_kdeglobals(config_home)
+        logger.debug("theme_name: {}", theme_name)
         if theme_name:
             return theme_name
 
         theme_name = self._check_plasmarc([config_home, *self.xdg.xdg_config_dirs()])
+        logger.debug("theme_name: {}", theme_name)
         if theme_name:
             return theme_name
 
