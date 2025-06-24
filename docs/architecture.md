@@ -216,9 +216,173 @@ Theme data is represented as dictionaries in the application:
 - Theme colors: `dict[str, dict[str, list[int]]]` - Color definitions organized by color group
 - Theme paths: `list[str]` - Lists of paths to theme files
 
+## Testing Architecture
+
+### Overview
+
+The KDE Colors project follows a strict set of testing principles designed to ensure high code quality, reliability, and maintainability. The key aspects of the testing architecture include:
+
+- __No Mocking__: All forms of mocking, patching, and monkeypatching are explicitly forbidden. This ensures tests are resilient to implementation changes.
+- __Test Doubles__: Instead of mocks, the project uses test doubles that implement the same interfaces as the production code.
+- __Test Organization__: Tests are organized by type (unit, integration, e2e) and follow a consistent structure.
+- __High Coverage__: The project aims for high test coverage (minimum 80%) to ensure reliability.
+
+### Test Directory Structure
+
+```bash
+tests/
+├── unit/             # Unit tests for individual components
+│   ├── interfaces/   # Tests for interface implementations
+│   ├── services/     # Tests for service implementations
+│   └── cli/          # Tests for CLI components
+├── integration/      # Integration tests for combinations of components
+├── e2e/              # End-to-end tests for full user workflows
+└── support/          # Test doubles and utilities used across tests
+    ├── environment_double.py
+    ├── file_system_double.py
+    ├── output_formatter_double.py
+    ├── theme_loader_double.py
+    └── xdg_double.py
+```
+
+### Test Types
+
+Tests are organized into different categories based on their scope and purpose:
+
+```mermaid
+graph TD
+    %% Test Types
+    subgraph "Test Types"
+        UnitTests["<p>Unit Tests</p><p>Test individual components in isolation</p>"]
+        IntegrationTests["<p>Integration Tests</p><p>Test component interactions</p>"]
+        E2ETests["<p>End-to-End Tests</p><p>Test complete user workflows</p>"]
+    end
+
+    UnitTests -->|verify| Components["<p>Individual components</p>"]
+    IntegrationTests -->|verify| Interactions["<p>Component interactions</p>"]
+    E2ETests -->|verify| Workflows["<p>End-to-end workflows</p>"]
+
+    class UnitTests,IntegrationTests,E2ETests testType
+    class Components,Interactions,Workflows testTarget
+```
+
+### Test Doubles
+
+Instead of using mocks, the project employs test doubles that implement the same interface protocols as production code. This approach ensures tests remain valid even when implementation details change, as long as the interface remains consistent.
+
+```mermaid
+graph TD
+    %% Interfaces
+    FileSystemInterface["FileSystemInterface"] <-..- FileSystemDouble["FileSystemDouble"]
+    EnvironmentInterface["EnvironmentInterface"] <-..- EnvironmentDouble["EnvironmentDouble"]
+    XDGInterface["XDGInterface"] <-..- XDGDouble["XDGDouble"]
+    ThemeLoaderInterface["ThemeLoaderInterface"] <-..- ThemeLoaderDouble["ThemeLoaderDouble"]
+    OutputFormatterInterface["OutputFormatterInterface"] <-..- OutputFormatterDouble["OutputFormatterDouble"]
+
+    %% Test Descriptions
+    FileSystemDouble -.-> FileSystemTest["<p>In-memory file system simulation with configurable behavior</p>"]
+    EnvironmentDouble -.-> EnvironmentTest["<p>Controllable environment variables for testing</p>"]
+    XDGDouble -.-> XDGTest["<p>Custom XDG paths for test isolation</p>"]
+    ThemeLoaderDouble -.-> ThemeLoaderTest["<p>Pre-configured theme data for predictable testing</p>"]
+    OutputFormatterDouble -.-> OutputFormatterTest["<p>Simplified output for easy verification</p>"]
+
+    class FileSystemInterface,EnvironmentInterface,XDGInterface,ThemeLoaderInterface,OutputFormatterInterface interface
+    class FileSystemDouble,EnvironmentDouble,XDGDouble,ThemeLoaderDouble,OutputFormatterDouble testDouble
+    class FileSystemTest,EnvironmentTest,XDGTest,ThemeLoaderTest,OutputFormatterTest testDesc
+```
+
+### Testing Patterns
+
+#### Dependency Injection
+
+All tests leverage dependency injection to substitute test doubles for real implementations. This allows tests to control the environment and isolate the component being tested.
+
+```python
+# Example: Testing with dependency injection
+def test_theme_loader_gets_themes(file_system_double, xdg_double):
+    # Arrange
+    theme_loader = ThemeLoader(file_system=file_system_double, xdg=xdg_double)
+
+    # Act
+    themes = theme_loader.get_themes()
+
+    # Assert
+    assert len(themes) > 0
+```
+
+#### Arrange-Act-Assert
+
+Tests follow the Arrange-Act-Assert pattern to clearly separate the setup, execution, and verification phases of each test.
+
+#### Test Doubles Configuration
+
+Test doubles are designed to be easily configured for specific test scenarios:
+
+```python
+# Example: Configuring a test double
+def test_file_system_operations(file_system_double):
+    # Arrange - configure the test double
+    file_system_double.write_text("/path/to/file.txt", "test content")
+
+    # Act
+    exists = file_system_double.exists("/path/to/file.txt")
+    content = file_system_double.read_text("/path/to/file.txt")
+
+    # Assert
+    assert exists is True
+    assert content == "test content"
+```
+
+### Integration Testing
+
+Integration tests verify that components work correctly together. They typically use the same test doubles as unit tests but focus on the interaction between multiple components.
+
+```python
+# Example: Integration test
+def test_cli_list_command_with_theme_loader(file_system_double, xdg_double):
+    # Arrange - setup the test environment
+    theme_loader = ThemeLoader(file_system=file_system_double, xdg=xdg_double)
+    cli_runner = CLIRunner(theme_loader=theme_loader)
+
+    # Configure test doubles with test data
+    file_system_double.write_text("/themes/theme1.colors", "[General]\nName=Theme1")
+
+    # Act - run the CLI command
+    result = cli_runner.run(["list", "--json"])
+
+    # Assert - verify the output
+    assert "Theme1" in result
+```
+
+### End-to-End Testing
+
+E2E tests verify complete user workflows by testing the application from the CLI entry point to the output, ensuring that all components work together correctly.
+
+```python
+# Example: End-to-End test
+@pytest.mark.usefixtures("kde_home")
+def test_list_text_output(run_cli: CallableABC[[list[str], Path | None], tuple[int, str, str]]) -> None:
+    """Test the list command with default text output."""
+    # Run the CLI command from the temporary environment
+    # kde_home is used by the fixture to set up the environment
+    exit_code, stdout, stderr = run_cli(["list"], None)
+
+    # Check that the command succeeded
+    assert exit_code == 0, f"Command failed with stderr: {stderr}"
+
+    # Verify output contains expected themes
+    assert "Available desktop themes" in stdout
+    assert "Alfa" in stdout
+    assert "Bravo" in stdout
+    assert "Charlie" in stdout
+    assert "Delta" in stdout
+```
+
+This example demonstrates how E2E tests use the actual CLI entry point (`run_cli`). The test verifies that the command produces the expected output format and content.
+
 ## CLI Package Architecture
 
-The `kde_colors.cli` package handles all command-line interaction and serves as the entry point for the application.
+The CLI module follows a structured architecture for handling commands and formatting output:
 
 ### cli_arg_parser.py
 
