@@ -1,0 +1,1688 @@
+
+<!DOCTYPE html>
+
+<html class="no-js" lang="en">
+<head>
+<meta charset="utf-8"/>
+<meta content="width=device-width,initial-scale=1" name="viewport"/>
+<meta content="Documentation for KDE Colors" name="description"/>
+<meta content="Roy Wright" name="author"/>
+<link href="../user-guide/" rel="prev"/>
+<link href="../reference/" rel="next"/>
+<link href="../assets/images/favicon.png" rel="icon"/>
+<meta content="mkdocs-1.6.1, mkdocs-material-9.6.14" name="generator"/>
+<title>Architecture - KDE Colors Documentation</title>
+<link href="../assets/stylesheets/main.342714a4.min.css" rel="stylesheet"/>
+<link href="../assets/stylesheets/palette.06af60db.min.css" rel="stylesheet"/>
+<link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect"/>
+<link href="https://fonts.googleapis.com/css?family=Roboto:300,300i,400,400i,700,700i%7CRoboto+Mono:400,400i,700,700i&amp;display=fallback" rel="stylesheet"/>
+<style>:root{--md-text-font:"Roboto";--md-code-font:"Roboto Mono"}</style>
+<link href="../assets/_mkdocstrings.css" rel="stylesheet"/>
+<link href="../css/timeago.css" rel="stylesheet"/>
+<script>__md_scope=new URL("..",location),__md_hash=e=>[...e].reduce(((e,_)=>(e<<5)-e+_.charCodeAt(0)),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
+</head>
+<body data-md-color-accent="indigo" data-md-color-primary="indigo" data-md-color-scheme="default" dir="ltr">
+<input autocomplete="off" class="md-toggle" data-md-toggle="drawer" id="__drawer" type="checkbox"/>
+<input autocomplete="off" class="md-toggle" data-md-toggle="search" id="__search" type="checkbox"/>
+<label class="md-overlay" for="__drawer"></label>
+<div data-md-component="skip">
+<a class="md-skip" href="#architecture">
+          Skip to content
+        </a>
+</div>
+<div data-md-component="announce">
+</div>
+<header class="md-header" data-md-component="header">
+<nav aria-label="Header" class="md-header__inner md-grid">
+<a aria-label="KDE Colors Documentation" class="md-header__button md-logo" data-md-component="logo" href=".." title="KDE Colors Documentation">
+<svg viewbox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"></path></svg>
+</a>
+<label class="md-header__button md-icon" for="__drawer">
+<svg viewbox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M3 6h18v2H3zm0 5h18v2H3zm0 5h18v2H3z"></path></svg>
+</label>
+<div class="md-header__title" data-md-component="header-title">
+<div class="md-header__ellipsis">
+<div class="md-header__topic">
+<span class="md-ellipsis">
+            KDE Colors Documentation
+          </span>
+</div>
+<div class="md-header__topic" data-md-component="header-topic">
+<span class="md-ellipsis">
+            
+              Architecture
+            
+          </span>
+</div>
+</div>
+</div>
+<form class="md-header__option" data-md-component="palette">
+<input aria-label="Switch to dark mode" class="md-option" data-md-color-accent="indigo" data-md-color-media="" data-md-color-primary="indigo" data-md-color-scheme="default" id="__palette_0" name="__palette" type="radio"/>
+<label class="md-header__button md-icon" for="__palette_1" hidden="" title="Switch to dark mode">
+<svg viewbox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M12 8a4 4 0 0 0-4 4 4 4 0 0 0 4 4 4 4 0 0 0 4-4 4 4 0 0 0-4-4m0 10a6 6 0 0 1-6-6 6 6 0 0 1 6-6 6 6 0 0 1 6 6 6 6 0 0 1-6 6m8-9.31V4h-4.69L12 .69 8.69 4H4v4.69L.69 12 4 15.31V20h4.69L12 23.31 15.31 20H20v-4.69L23.31 12z"></path></svg>
+</label>
+<input aria-label="Switch to light mode" class="md-option" data-md-color-accent="indigo" data-md-color-media="" data-md-color-primary="indigo" data-md-color-scheme="slate" id="__palette_1" name="__palette" type="radio"/>
+<label class="md-header__button md-icon" for="__palette_0" hidden="" title="Switch to light mode">
+<svg viewbox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M12 18c-.89 0-1.74-.2-2.5-.55C11.56 16.5 13 14.42 13 12s-1.44-4.5-3.5-5.45C10.26 6.2 11.11 6 12 6a6 6 0 0 1 6 6 6 6 0 0 1-6 6m8-9.31V4h-4.69L12 .69 8.69 4H4v4.69L.69 12 4 15.31V20h4.69L12 23.31 15.31 20H20v-4.69L23.31 12z"></path></svg>
+</label>
+</form>
+<script>var palette=__md_get("__palette");if(palette&&palette.color){if("(prefers-color-scheme)"===palette.color.media){var media=matchMedia("(prefers-color-scheme: light)"),input=document.querySelector(media.matches?"[data-md-color-media='(prefers-color-scheme: light)']":"[data-md-color-media='(prefers-color-scheme: dark)']");palette.color.media=input.getAttribute("data-md-color-media"),palette.color.scheme=input.getAttribute("data-md-color-scheme"),palette.color.primary=input.getAttribute("data-md-color-primary"),palette.color.accent=input.getAttribute("data-md-color-accent")}for(var[key,value]of Object.entries(palette.color))document.body.setAttribute("data-md-color-"+key,value)}</script>
+<label class="md-header__button md-icon" for="__search">
+<svg viewbox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"></path></svg>
+</label>
+<div class="md-search" data-md-component="search" role="dialog">
+<label class="md-search__overlay" for="__search"></label>
+<div class="md-search__inner" role="search">
+<form class="md-search__form" name="search">
+<input aria-label="Search" autocapitalize="off" autocomplete="off" autocorrect="off" class="md-search__input" data-md-component="search-query" name="query" placeholder="Search" required="" spellcheck="false" type="text"/>
+<label class="md-search__icon md-icon" for="__search">
+<svg viewbox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"></path></svg>
+<svg viewbox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11z"></path></svg>
+</label>
+<nav aria-label="Search" class="md-search__options">
+<button aria-label="Clear" class="md-search__icon md-icon" tabindex="-1" title="Clear" type="reset">
+<svg viewbox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M19 6.41 17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"></path></svg>
+</button>
+</nav>
+<div class="md-search__suggest" data-md-component="search-suggest"></div>
+</form>
+<div class="md-search__output">
+<div class="md-search__scrollwrap" data-md-scrollfix="" tabindex="0">
+<div class="md-search-result" data-md-component="search-result">
+<div class="md-search-result__meta">
+            Initializing search
+          </div>
+<ol class="md-search-result__list" role="presentation"></ol>
+</div>
+</div>
+</div>
+</div>
+</div>
+<div class="md-header__source">
+<a class="md-source" data-md-component="source" href="https://github.com/royw/kde_colors" title="Go to repository">
+<div class="md-source__icon md-icon">
+<svg viewbox="0 0 496 512" xmlns="http://www.w3.org/2000/svg"><!--! Font Awesome Free 6.7.2 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2024 Fonticons, Inc.--><path d="M165.9 397.4c0 2-2.3 3.6-5.2 3.6-3.3.3-5.6-1.3-5.6-3.6 0-2 2.3-3.6 5.2-3.6 3-.3 5.6 1.3 5.6 3.6m-31.1-4.5c-.7 2 1.3 4.3 4.3 4.9 2.6 1 5.6 0 6.2-2s-1.3-4.3-4.3-5.2c-2.6-.7-5.5.3-6.2 2.3m44.2-1.7c-2.9.7-4.9 2.6-4.6 4.9.3 2 2.9 3.3 5.9 2.6 2.9-.7 4.9-2.6 4.6-4.6-.3-1.9-3-3.2-5.9-2.9M244.8 8C106.1 8 0 113.3 0 252c0 110.9 69.8 205.8 169.5 239.2 12.8 2.3 17.3-5.6 17.3-12.1 0-6.2-.3-40.4-.3-61.4 0 0-70 15-84.7-29.8 0 0-11.4-29.1-27.8-36.6 0 0-22.9-15.7 1.6-15.4 0 0 24.9 2 38.6 25.8 21.9 38.6 58.6 27.5 72.9 20.9 2.3-16 8.8-27.1 16-33.7-55.9-6.2-112.3-14.3-112.3-110.5 0-27.5 7.6-41.3 23.6-58.9-2.6-6.5-11.1-33.3 2.6-67.9 20.9-6.5 69 27 69 27 20-5.6 41.5-8.5 62.8-8.5s42.8 2.9 62.8 8.5c0 0 48.1-33.6 69-27 13.7 34.7 5.2 61.4 2.6 67.9 16 17.7 25.8 31.5 25.8 58.9 0 96.5-58.9 104.2-114.8 110.5 9.2 7.9 17 22.9 17 46.4 0 33.7-.3 75.4-.3 83.6 0 6.5 4.6 14.4 17.3 12.1C428.2 457.8 496 362.9 496 252 496 113.3 383.5 8 244.8 8M97.2 352.9c-1.3 1-1 3.3.7 5.2 1.6 1.6 3.9 2.3 5.2 1 1.3-1 1-3.3-.7-5.2-1.6-1.6-3.9-2.3-5.2-1m-10.8-8.1c-.7 1.3.3 2.9 2.3 3.9 1.6 1 3.6.7 4.3-.7.7-1.3-.3-2.9-2.3-3.9-2-.6-3.6-.3-4.3.7m32.4 35.6c-1.6 1.3-1 4.3 1.3 6.2 2.3 2.3 5.2 2.6 6.5 1 1.3-1.3.7-4.3-1.3-6.2-2.2-2.3-5.2-2.6-6.5-1m-11.4-14.7c-1.6 1-1.6 3.6 0 5.9s4.3 3.3 5.6 2.3c1.6-1.3 1.6-3.9 0-6.2-1.4-2.3-4-3.3-5.6-2"></path></svg>
+</div>
+<div class="md-source__repository">
+    royw/kde_colors
+  </div>
+</a>
+</div>
+</nav>
+</header>
+<div class="md-container" data-md-component="container">
+<nav aria-label="Tabs" class="md-tabs" data-md-component="tabs">
+<div class="md-grid">
+<ul class="md-tabs__list">
+<li class="md-tabs__item">
+<a class="md-tabs__link" href="..">
+        
+  
+  
+    
+  
+  Home
+
+      </a>
+</li>
+<li class="md-tabs__item">
+<a class="md-tabs__link" href="../user-guide/">
+        
+  
+  
+    
+  
+  User Guide
+
+      </a>
+</li>
+<li class="md-tabs__item md-tabs__item--active">
+<a class="md-tabs__link" href="./">
+        
+  
+  
+    
+  
+  Architecture
+
+      </a>
+</li>
+<li class="md-tabs__item">
+<a class="md-tabs__link" href="../reference/">
+          
+  
+  
+    
+  
+  API Reference
+
+        </a>
+</li>
+<li class="md-tabs__item">
+<a class="md-tabs__link" href="../theme-files/">
+          
+  
+  
+    
+  
+  Technical Documentation
+
+        </a>
+</li>
+<li class="md-tabs__item">
+<a class="md-tabs__link" href="../project-files/">
+          
+  
+  
+    
+  
+  Project Information
+
+        </a>
+</li>
+</ul>
+</div>
+</nav>
+<main class="md-main" data-md-component="main">
+<div class="md-main__inner md-grid">
+<div class="md-sidebar md-sidebar--primary" data-md-component="sidebar" data-md-type="navigation">
+<div class="md-sidebar__scrollwrap">
+<div class="md-sidebar__inner">
+<nav aria-label="Navigation" class="md-nav md-nav--primary md-nav--lifted" data-md-level="0">
+<label class="md-nav__title" for="__drawer">
+<a aria-label="KDE Colors Documentation" class="md-nav__button md-logo" data-md-component="logo" href=".." title="KDE Colors Documentation">
+<svg viewbox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"></path></svg>
+</a>
+    KDE Colors Documentation
+  </label>
+<div class="md-nav__source">
+<a class="md-source" data-md-component="source" href="https://github.com/royw/kde_colors" title="Go to repository">
+<div class="md-source__icon md-icon">
+<svg viewbox="0 0 496 512" xmlns="http://www.w3.org/2000/svg"><!--! Font Awesome Free 6.7.2 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2024 Fonticons, Inc.--><path d="M165.9 397.4c0 2-2.3 3.6-5.2 3.6-3.3.3-5.6-1.3-5.6-3.6 0-2 2.3-3.6 5.2-3.6 3-.3 5.6 1.3 5.6 3.6m-31.1-4.5c-.7 2 1.3 4.3 4.3 4.9 2.6 1 5.6 0 6.2-2s-1.3-4.3-4.3-5.2c-2.6-.7-5.5.3-6.2 2.3m44.2-1.7c-2.9.7-4.9 2.6-4.6 4.9.3 2 2.9 3.3 5.9 2.6 2.9-.7 4.9-2.6 4.6-4.6-.3-1.9-3-3.2-5.9-2.9M244.8 8C106.1 8 0 113.3 0 252c0 110.9 69.8 205.8 169.5 239.2 12.8 2.3 17.3-5.6 17.3-12.1 0-6.2-.3-40.4-.3-61.4 0 0-70 15-84.7-29.8 0 0-11.4-29.1-27.8-36.6 0 0-22.9-15.7 1.6-15.4 0 0 24.9 2 38.6 25.8 21.9 38.6 58.6 27.5 72.9 20.9 2.3-16 8.8-27.1 16-33.7-55.9-6.2-112.3-14.3-112.3-110.5 0-27.5 7.6-41.3 23.6-58.9-2.6-6.5-11.1-33.3 2.6-67.9 20.9-6.5 69 27 69 27 20-5.6 41.5-8.5 62.8-8.5s42.8 2.9 62.8 8.5c0 0 48.1-33.6 69-27 13.7 34.7 5.2 61.4 2.6 67.9 16 17.7 25.8 31.5 25.8 58.9 0 96.5-58.9 104.2-114.8 110.5 9.2 7.9 17 22.9 17 46.4 0 33.7-.3 75.4-.3 83.6 0 6.5 4.6 14.4 17.3 12.1C428.2 457.8 496 362.9 496 252 496 113.3 383.5 8 244.8 8M97.2 352.9c-1.3 1-1 3.3.7 5.2 1.6 1.6 3.9 2.3 5.2 1 1.3-1 1-3.3-.7-5.2-1.6-1.6-3.9-2.3-5.2-1m-10.8-8.1c-.7 1.3.3 2.9 2.3 3.9 1.6 1 3.6.7 4.3-.7.7-1.3-.3-2.9-2.3-3.9-2-.6-3.6-.3-4.3.7m32.4 35.6c-1.6 1.3-1 4.3 1.3 6.2 2.3 2.3 5.2 2.6 6.5 1 1.3-1.3.7-4.3-1.3-6.2-2.2-2.3-5.2-2.6-6.5-1m-11.4-14.7c-1.6 1-1.6 3.6 0 5.9s4.3 3.3 5.6 2.3c1.6-1.3 1.6-3.9 0-6.2-1.4-2.3-4-3.3-5.6-2"></path></svg>
+</div>
+<div class="md-source__repository">
+    royw/kde_colors
+  </div>
+</a>
+</div>
+<ul class="md-nav__list" data-md-scrollfix="">
+<li class="md-nav__item">
+<a class="md-nav__link" href="..">
+<span class="md-ellipsis">
+    Home
+    
+  </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../user-guide/">
+<span class="md-ellipsis">
+    User Guide
+    
+  </span>
+</a>
+</li>
+<li class="md-nav__item md-nav__item--active">
+<input class="md-nav__toggle md-toggle" id="__toc" type="checkbox"/>
+<label class="md-nav__link md-nav__link--active" for="__toc">
+<span class="md-ellipsis">
+    Architecture
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</label>
+<a class="md-nav__link md-nav__link--active" href="./">
+<span class="md-ellipsis">
+    Architecture
+    
+  </span>
+</a>
+<nav aria-label="Table of contents" class="md-nav md-nav--secondary">
+<label class="md-nav__title" for="__toc">
+<span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+<ul class="md-nav__list" data-md-component="toc" data-md-scrollfix="">
+<li class="md-nav__item">
+<a class="md-nav__link" href="#package-structure">
+<span class="md-ellipsis">
+      Package Structure
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#project-script">
+<span class="md-ellipsis">
+      Project Script
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#system-overview">
+<span class="md-ellipsis">
+      System Overview
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#interface-design">
+<span class="md-ellipsis">
+      Interface Design
+    </span>
+</a>
+<nav aria-label="Interface Design" class="md-nav">
+<ul class="md-nav__list">
+<li class="md-nav__item">
+<a class="md-nav__link" href="#filesysteminterface">
+<span class="md-ellipsis">
+      FileSystemInterface
+    </span>
+</a>
+<nav aria-label="FileSystemInterface" class="md-nav">
+<ul class="md-nav__list">
+<li class="md-nav__item">
+<a class="md-nav__link" href="#testssupportfile_system_doublepy">
+<span class="md-ellipsis">
+      tests/support/file_system_double.py
+    </span>
+</a>
+</li>
+</ul>
+</nav>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#xdginterface">
+<span class="md-ellipsis">
+      XDGInterface
+    </span>
+</a>
+<nav aria-label="XDGInterface" class="md-nav">
+<ul class="md-nav__list">
+<li class="md-nav__item">
+<a class="md-nav__link" href="#testssupportxdg_doublepy">
+<span class="md-ellipsis">
+      tests/support/xdg_double.py
+    </span>
+</a>
+</li>
+</ul>
+</nav>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#themeloaderinterface">
+<span class="md-ellipsis">
+      ThemeLoaderInterface
+    </span>
+</a>
+<nav aria-label="ThemeLoaderInterface" class="md-nav">
+<ul class="md-nav__list">
+<li class="md-nav__item">
+<a class="md-nav__link" href="#testssupporttheme_loader_doublepy">
+<span class="md-ellipsis">
+      tests/support/theme_loader_double.py
+    </span>
+</a>
+</li>
+</ul>
+</nav>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#outputformatterinterface">
+<span class="md-ellipsis">
+      OutputFormatterInterface
+    </span>
+</a>
+<nav aria-label="OutputFormatterInterface" class="md-nav">
+<ul class="md-nav__list">
+<li class="md-nav__item">
+<a class="md-nav__link" href="#testssupportoutput_formatter_doublepy">
+<span class="md-ellipsis">
+      tests/support/output_formatter_double.py
+    </span>
+</a>
+</li>
+</ul>
+</nav>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#environmentinterface">
+<span class="md-ellipsis">
+      EnvironmentInterface
+    </span>
+</a>
+<nav aria-label="EnvironmentInterface" class="md-nav">
+<ul class="md-nav__list">
+<li class="md-nav__item">
+<a class="md-nav__link" href="#testssupportenvironment_doublepy">
+<span class="md-ellipsis">
+      tests/support/environment_double.py
+    </span>
+</a>
+</li>
+</ul>
+</nav>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#services">
+<span class="md-ellipsis">
+      Services
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#themeloader-service">
+<span class="md-ellipsis">
+      ThemeLoader Service
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#filesystem-service">
+<span class="md-ellipsis">
+      FileSystem Service
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#outputformatter-service">
+<span class="md-ellipsis">
+      OutputFormatter Service
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#environment-service">
+<span class="md-ellipsis">
+      Environment Service
+    </span>
+</a>
+</li>
+</ul>
+</nav>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#theme-data-structure">
+<span class="md-ellipsis">
+      Theme Data Structure
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#testing-architecture">
+<span class="md-ellipsis">
+      Testing Architecture
+    </span>
+</a>
+<nav aria-label="Testing Architecture" class="md-nav">
+<ul class="md-nav__list">
+<li class="md-nav__item">
+<a class="md-nav__link" href="#overview">
+<span class="md-ellipsis">
+      Overview
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#test-directory-structure">
+<span class="md-ellipsis">
+      Test Directory Structure
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#test-types">
+<span class="md-ellipsis">
+      Test Types
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#test-doubles">
+<span class="md-ellipsis">
+      Test Doubles
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#testing-patterns">
+<span class="md-ellipsis">
+      Testing Patterns
+    </span>
+</a>
+<nav aria-label="Testing Patterns" class="md-nav">
+<ul class="md-nav__list">
+<li class="md-nav__item">
+<a class="md-nav__link" href="#dependency-injection">
+<span class="md-ellipsis">
+      Dependency Injection
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#arrange-act-assert">
+<span class="md-ellipsis">
+      Arrange-Act-Assert
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#test-doubles-configuration">
+<span class="md-ellipsis">
+      Test Doubles Configuration
+    </span>
+</a>
+</li>
+</ul>
+</nav>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#integration-testing">
+<span class="md-ellipsis">
+      Integration Testing
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#end-to-end-testing">
+<span class="md-ellipsis">
+      End-to-End Testing
+    </span>
+</a>
+</li>
+</ul>
+</nav>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#cli-package-architecture">
+<span class="md-ellipsis">
+      CLI Package Architecture
+    </span>
+</a>
+<nav aria-label="CLI Package Architecture" class="md-nav">
+<ul class="md-nav__list">
+<li class="md-nav__item">
+<a class="md-nav__link" href="#cli_arg_parserpy">
+<span class="md-ellipsis">
+      cli_arg_parser.py
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#cli_runnerpy">
+<span class="md-ellipsis">
+      cli_runner.py
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#command-line-argument-parsing">
+<span class="md-ellipsis">
+      Command-line Argument Parsing
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#version-management">
+<span class="md-ellipsis">
+      Version Management
+    </span>
+</a>
+</li>
+</ul>
+</nav>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#components">
+<span class="md-ellipsis">
+      Components
+    </span>
+</a>
+<nav aria-label="Components" class="md-nav">
+<ul class="md-nav__list">
+<li class="md-nav__item">
+<a class="md-nav__link" href="#cli">
+<span class="md-ellipsis">
+      CLI
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#core-services">
+<span class="md-ellipsis">
+      Core Services
+    </span>
+</a>
+<nav aria-label="Core Services" class="md-nav">
+<ul class="md-nav__list">
+<li class="md-nav__item">
+<a class="md-nav__link" href="#themeloader">
+<span class="md-ellipsis">
+      ThemeLoader
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#filesystem">
+<span class="md-ellipsis">
+      FileSystem
+    </span>
+</a>
+</li>
+</ul>
+</nav>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#output-formatters">
+<span class="md-ellipsis">
+      Output Formatters
+    </span>
+</a>
+</li>
+</ul>
+</nav>
+</li>
+</ul>
+</nav>
+</li>
+<li class="md-nav__item md-nav__item--nested">
+<input class="md-nav__toggle md-toggle md-toggle--indeterminate" id="__nav_4" type="checkbox"/>
+<div class="md-nav__link md-nav__container">
+<a class="md-nav__link" href="../reference/">
+<span class="md-ellipsis">
+    API Reference
+    
+  </span>
+</a>
+<label class="md-nav__link" for="__nav_4" id="__nav_4_label" tabindex="0">
+<span class="md-nav__icon md-icon"></span>
+</label>
+</div>
+<nav aria-expanded="false" aria-labelledby="__nav_4_label" class="md-nav" data-md-level="1">
+<label class="md-nav__title" for="__nav_4">
+<span class="md-nav__icon md-icon"></span>
+            API Reference
+          </label>
+<ul class="md-nav__list" data-md-scrollfix="">
+<li class="md-nav__item md-nav__item--nested">
+<input class="md-nav__toggle md-toggle md-toggle--indeterminate" id="__nav_4_2" type="checkbox"/>
+<div class="md-nav__link md-nav__container">
+<a class="md-nav__link" href="../reference/kde_colors/">
+<span class="md-ellipsis">
+    Kde colors
+    
+  </span>
+</a>
+<label class="md-nav__link" for="__nav_4_2" id="__nav_4_2_label" tabindex="0">
+<span class="md-nav__icon md-icon"></span>
+</label>
+</div>
+<nav aria-expanded="false" aria-labelledby="__nav_4_2_label" class="md-nav" data-md-level="2">
+<label class="md-nav__title" for="__nav_4_2">
+<span class="md-nav__icon md-icon"></span>
+            Kde colors
+          </label>
+<ul class="md-nav__list" data-md-scrollfix="">
+<li class="md-nav__item md-nav__item--nested">
+<input class="md-nav__toggle md-toggle md-toggle--indeterminate" id="__nav_4_2_2" type="checkbox"/>
+<div class="md-nav__link md-nav__container">
+<a class="md-nav__link" href="../reference/kde_colors/cli/">
+<span class="md-ellipsis">
+    Cli
+    
+  </span>
+</a>
+<label class="md-nav__link" for="__nav_4_2_2" id="__nav_4_2_2_label" tabindex="0">
+<span class="md-nav__icon md-icon"></span>
+</label>
+</div>
+<nav aria-expanded="false" aria-labelledby="__nav_4_2_2_label" class="md-nav" data-md-level="3">
+<label class="md-nav__title" for="__nav_4_2_2">
+<span class="md-nav__icon md-icon"></span>
+            Cli
+          </label>
+<ul class="md-nav__list" data-md-scrollfix="">
+<li class="md-nav__item">
+<a class="md-nav__link" href="../reference/kde_colors/cli/cli_arg_parser/">
+<span class="md-ellipsis">
+    Cli arg parser
+    
+  </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../reference/kde_colors/cli/cli_runner/">
+<span class="md-ellipsis">
+    Cli runner
+    
+  </span>
+</a>
+</li>
+</ul>
+</nav>
+</li>
+<li class="md-nav__item md-nav__item--nested">
+<input class="md-nav__toggle md-toggle md-toggle--indeterminate" id="__nav_4_2_3" type="checkbox"/>
+<div class="md-nav__link md-nav__container">
+<a class="md-nav__link" href="../reference/kde_colors/interfaces/">
+<span class="md-ellipsis">
+    Interfaces
+    
+  </span>
+</a>
+<label class="md-nav__link" for="__nav_4_2_3" id="__nav_4_2_3_label" tabindex="0">
+<span class="md-nav__icon md-icon"></span>
+</label>
+</div>
+<nav aria-expanded="false" aria-labelledby="__nav_4_2_3_label" class="md-nav" data-md-level="3">
+<label class="md-nav__title" for="__nav_4_2_3">
+<span class="md-nav__icon md-icon"></span>
+            Interfaces
+          </label>
+<ul class="md-nav__list" data-md-scrollfix="">
+<li class="md-nav__item">
+<a class="md-nav__link" href="../reference/kde_colors/interfaces/environment/">
+<span class="md-ellipsis">
+    Environment
+    
+  </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../reference/kde_colors/interfaces/file_system/">
+<span class="md-ellipsis">
+    File system
+    
+  </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../reference/kde_colors/interfaces/output_formatter/">
+<span class="md-ellipsis">
+    Output formatter
+    
+  </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../reference/kde_colors/interfaces/theme_loader/">
+<span class="md-ellipsis">
+    Theme loader
+    
+  </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../reference/kde_colors/interfaces/xdg/">
+<span class="md-ellipsis">
+    Xdg
+    
+  </span>
+</a>
+</li>
+</ul>
+</nav>
+</li>
+<li class="md-nav__item md-nav__item--nested">
+<input class="md-nav__toggle md-toggle md-toggle--indeterminate" id="__nav_4_2_4" type="checkbox"/>
+<div class="md-nav__link md-nav__container">
+<a class="md-nav__link" href="../reference/kde_colors/services/">
+<span class="md-ellipsis">
+    Services
+    
+  </span>
+</a>
+<label class="md-nav__link" for="__nav_4_2_4" id="__nav_4_2_4_label" tabindex="0">
+<span class="md-nav__icon md-icon"></span>
+</label>
+</div>
+<nav aria-expanded="false" aria-labelledby="__nav_4_2_4_label" class="md-nav" data-md-level="3">
+<label class="md-nav__title" for="__nav_4_2_4">
+<span class="md-nav__icon md-icon"></span>
+            Services
+          </label>
+<ul class="md-nav__list" data-md-scrollfix="">
+<li class="md-nav__item">
+<a class="md-nav__link" href="../reference/kde_colors/services/environment/">
+<span class="md-ellipsis">
+    Environment
+    
+  </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../reference/kde_colors/services/file_system/">
+<span class="md-ellipsis">
+    File system
+    
+  </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../reference/kde_colors/services/output_formatter/">
+<span class="md-ellipsis">
+    Output formatter
+    
+  </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../reference/kde_colors/services/theme_loader/">
+<span class="md-ellipsis">
+    Theme loader
+    
+  </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../reference/kde_colors/services/xdg/">
+<span class="md-ellipsis">
+    Xdg
+    
+  </span>
+</a>
+</li>
+</ul>
+</nav>
+</li>
+</ul>
+</nav>
+</li>
+</ul>
+</nav>
+</li>
+<li class="md-nav__item md-nav__item--nested">
+<input class="md-nav__toggle md-toggle md-toggle--indeterminate" id="__nav_5" type="checkbox"/>
+<label class="md-nav__link" for="__nav_5" id="__nav_5_label" tabindex="0">
+<span class="md-ellipsis">
+    Technical Documentation
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</label>
+<nav aria-expanded="false" aria-labelledby="__nav_5_label" class="md-nav" data-md-level="1">
+<label class="md-nav__title" for="__nav_5">
+<span class="md-nav__icon md-icon"></span>
+            Technical Documentation
+          </label>
+<ul class="md-nav__list" data-md-scrollfix="">
+<li class="md-nav__item">
+<a class="md-nav__link" href="../theme-files/">
+<span class="md-ellipsis">
+    Theme Files
+    
+  </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../color-files/">
+<span class="md-ellipsis">
+    Color Files
+    
+  </span>
+</a>
+</li>
+</ul>
+</nav>
+</li>
+<li class="md-nav__item md-nav__item--nested">
+<input class="md-nav__toggle md-toggle md-toggle--indeterminate" id="__nav_6" type="checkbox"/>
+<div class="md-nav__link md-nav__container">
+<a class="md-nav__link" href="../project-files/">
+<span class="md-ellipsis">
+    Project Information
+    
+  </span>
+</a>
+<label class="md-nav__link" for="__nav_6" id="__nav_6_label" tabindex="0">
+<span class="md-nav__icon md-icon"></span>
+</label>
+</div>
+<nav aria-expanded="false" aria-labelledby="__nav_6_label" class="md-nav" data-md-level="1">
+<label class="md-nav__title" for="__nav_6">
+<span class="md-nav__icon md-icon"></span>
+            Project Information
+          </label>
+<ul class="md-nav__list" data-md-scrollfix="">
+<li class="md-nav__item">
+<a class="md-nav__link" href="../project-files/DEV-README/">
+<span class="md-ellipsis">
+    Developer Guide
+    
+  </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../license/">
+<span class="md-ellipsis">
+    License
+    
+  </span>
+</a>
+</li>
+</ul>
+</nav>
+</li>
+</ul>
+</nav>
+</div>
+</div>
+</div>
+<div class="md-sidebar md-sidebar--secondary" data-md-component="sidebar" data-md-type="toc">
+<div class="md-sidebar__scrollwrap">
+<div class="md-sidebar__inner">
+<nav aria-label="Table of contents" class="md-nav md-nav--secondary">
+<label class="md-nav__title" for="__toc">
+<span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+<ul class="md-nav__list" data-md-component="toc" data-md-scrollfix="">
+<li class="md-nav__item">
+<a class="md-nav__link" href="#package-structure">
+<span class="md-ellipsis">
+      Package Structure
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#project-script">
+<span class="md-ellipsis">
+      Project Script
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#system-overview">
+<span class="md-ellipsis">
+      System Overview
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#interface-design">
+<span class="md-ellipsis">
+      Interface Design
+    </span>
+</a>
+<nav aria-label="Interface Design" class="md-nav">
+<ul class="md-nav__list">
+<li class="md-nav__item">
+<a class="md-nav__link" href="#filesysteminterface">
+<span class="md-ellipsis">
+      FileSystemInterface
+    </span>
+</a>
+<nav aria-label="FileSystemInterface" class="md-nav">
+<ul class="md-nav__list">
+<li class="md-nav__item">
+<a class="md-nav__link" href="#testssupportfile_system_doublepy">
+<span class="md-ellipsis">
+      tests/support/file_system_double.py
+    </span>
+</a>
+</li>
+</ul>
+</nav>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#xdginterface">
+<span class="md-ellipsis">
+      XDGInterface
+    </span>
+</a>
+<nav aria-label="XDGInterface" class="md-nav">
+<ul class="md-nav__list">
+<li class="md-nav__item">
+<a class="md-nav__link" href="#testssupportxdg_doublepy">
+<span class="md-ellipsis">
+      tests/support/xdg_double.py
+    </span>
+</a>
+</li>
+</ul>
+</nav>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#themeloaderinterface">
+<span class="md-ellipsis">
+      ThemeLoaderInterface
+    </span>
+</a>
+<nav aria-label="ThemeLoaderInterface" class="md-nav">
+<ul class="md-nav__list">
+<li class="md-nav__item">
+<a class="md-nav__link" href="#testssupporttheme_loader_doublepy">
+<span class="md-ellipsis">
+      tests/support/theme_loader_double.py
+    </span>
+</a>
+</li>
+</ul>
+</nav>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#outputformatterinterface">
+<span class="md-ellipsis">
+      OutputFormatterInterface
+    </span>
+</a>
+<nav aria-label="OutputFormatterInterface" class="md-nav">
+<ul class="md-nav__list">
+<li class="md-nav__item">
+<a class="md-nav__link" href="#testssupportoutput_formatter_doublepy">
+<span class="md-ellipsis">
+      tests/support/output_formatter_double.py
+    </span>
+</a>
+</li>
+</ul>
+</nav>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#environmentinterface">
+<span class="md-ellipsis">
+      EnvironmentInterface
+    </span>
+</a>
+<nav aria-label="EnvironmentInterface" class="md-nav">
+<ul class="md-nav__list">
+<li class="md-nav__item">
+<a class="md-nav__link" href="#testssupportenvironment_doublepy">
+<span class="md-ellipsis">
+      tests/support/environment_double.py
+    </span>
+</a>
+</li>
+</ul>
+</nav>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#services">
+<span class="md-ellipsis">
+      Services
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#themeloader-service">
+<span class="md-ellipsis">
+      ThemeLoader Service
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#filesystem-service">
+<span class="md-ellipsis">
+      FileSystem Service
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#outputformatter-service">
+<span class="md-ellipsis">
+      OutputFormatter Service
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#environment-service">
+<span class="md-ellipsis">
+      Environment Service
+    </span>
+</a>
+</li>
+</ul>
+</nav>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#theme-data-structure">
+<span class="md-ellipsis">
+      Theme Data Structure
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#testing-architecture">
+<span class="md-ellipsis">
+      Testing Architecture
+    </span>
+</a>
+<nav aria-label="Testing Architecture" class="md-nav">
+<ul class="md-nav__list">
+<li class="md-nav__item">
+<a class="md-nav__link" href="#overview">
+<span class="md-ellipsis">
+      Overview
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#test-directory-structure">
+<span class="md-ellipsis">
+      Test Directory Structure
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#test-types">
+<span class="md-ellipsis">
+      Test Types
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#test-doubles">
+<span class="md-ellipsis">
+      Test Doubles
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#testing-patterns">
+<span class="md-ellipsis">
+      Testing Patterns
+    </span>
+</a>
+<nav aria-label="Testing Patterns" class="md-nav">
+<ul class="md-nav__list">
+<li class="md-nav__item">
+<a class="md-nav__link" href="#dependency-injection">
+<span class="md-ellipsis">
+      Dependency Injection
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#arrange-act-assert">
+<span class="md-ellipsis">
+      Arrange-Act-Assert
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#test-doubles-configuration">
+<span class="md-ellipsis">
+      Test Doubles Configuration
+    </span>
+</a>
+</li>
+</ul>
+</nav>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#integration-testing">
+<span class="md-ellipsis">
+      Integration Testing
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#end-to-end-testing">
+<span class="md-ellipsis">
+      End-to-End Testing
+    </span>
+</a>
+</li>
+</ul>
+</nav>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#cli-package-architecture">
+<span class="md-ellipsis">
+      CLI Package Architecture
+    </span>
+</a>
+<nav aria-label="CLI Package Architecture" class="md-nav">
+<ul class="md-nav__list">
+<li class="md-nav__item">
+<a class="md-nav__link" href="#cli_arg_parserpy">
+<span class="md-ellipsis">
+      cli_arg_parser.py
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#cli_runnerpy">
+<span class="md-ellipsis">
+      cli_runner.py
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#command-line-argument-parsing">
+<span class="md-ellipsis">
+      Command-line Argument Parsing
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#version-management">
+<span class="md-ellipsis">
+      Version Management
+    </span>
+</a>
+</li>
+</ul>
+</nav>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#components">
+<span class="md-ellipsis">
+      Components
+    </span>
+</a>
+<nav aria-label="Components" class="md-nav">
+<ul class="md-nav__list">
+<li class="md-nav__item">
+<a class="md-nav__link" href="#cli">
+<span class="md-ellipsis">
+      CLI
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#core-services">
+<span class="md-ellipsis">
+      Core Services
+    </span>
+</a>
+<nav aria-label="Core Services" class="md-nav">
+<ul class="md-nav__list">
+<li class="md-nav__item">
+<a class="md-nav__link" href="#themeloader">
+<span class="md-ellipsis">
+      ThemeLoader
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#filesystem">
+<span class="md-ellipsis">
+      FileSystem
+    </span>
+</a>
+</li>
+</ul>
+</nav>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#output-formatters">
+<span class="md-ellipsis">
+      Output Formatters
+    </span>
+</a>
+</li>
+</ul>
+</nav>
+</li>
+</ul>
+</nav>
+</div>
+</div>
+</div>
+<div class="md-content" data-md-component="content">
+<article class="md-content__inner md-typeset">
+<h1 id="architecture">Architecture<a class="headerlink" href="#architecture" title="Permanent link">¶</a></h1>
+<p>This document describes the high-level architecture of the <code>kde-colors</code> project.</p>
+<h2 id="package-structure">Package Structure<a class="headerlink" href="#package-structure" title="Permanent link">¶</a></h2>
+<p>The <code>kde_colors</code> package is organized into the following structure:</p>
+<div class="language-text highlight"><pre><span></span><code><span id="__span-0-1"><a href="#__codelineno-0-1" id="__codelineno-0-1" name="__codelineno-0-1"></a>kde_colors/
+</span><span id="__span-0-2"><a href="#__codelineno-0-2" id="__codelineno-0-2" name="__codelineno-0-2"></a>├── __init__.py        # Main package initialization
+</span><span id="__span-0-3"><a href="#__codelineno-0-3" id="__codelineno-0-3" name="__codelineno-0-3"></a>├── __main__.py        # Entry point for direct execution, defined in pyproject.toml, calls cli_runner.run_cli()
+</span><span id="__span-0-4"><a href="#__codelineno-0-4" id="__codelineno-0-4" name="__codelineno-0-4"></a>├── cli/               # Command-line interface components
+</span><span id="__span-0-5"><a href="#__codelineno-0-5" id="__codelineno-0-5" name="__codelineno-0-5"></a>│   ├── __init__.py
+</span><span id="__span-0-6"><a href="#__codelineno-0-6" id="__codelineno-0-6" name="__codelineno-0-6"></a>│   ├── cli_arg_parser.py  # Argument parsing
+</span><span id="__span-0-7"><a href="#__codelineno-0-7" id="__codelineno-0-7" name="__codelineno-0-7"></a>│   └── cli_runner.py      # Command execution
+</span><span id="__span-0-8"><a href="#__codelineno-0-8" id="__codelineno-0-8" name="__codelineno-0-8"></a>├── interfaces/        # Protocol definitions
+</span><span id="__span-0-9"><a href="#__codelineno-0-9" id="__codelineno-0-9" name="__codelineno-0-9"></a>│   ├── __init__.py
+</span><span id="__span-0-10"><a href="#__codelineno-0-10" id="__codelineno-0-10" name="__codelineno-0-10"></a>│   ├── environment.py     # Environment interface
+</span><span id="__span-0-11"><a href="#__codelineno-0-11" id="__codelineno-0-11" name="__codelineno-0-11"></a>│   ├── file_system.py     # FileSystem interface
+</span><span id="__span-0-12"><a href="#__codelineno-0-12" id="__codelineno-0-12" name="__codelineno-0-12"></a>│   ├── output_formatter.py # OutputFormatter interface
+</span><span id="__span-0-13"><a href="#__codelineno-0-13" id="__codelineno-0-13" name="__codelineno-0-13"></a>│   ├── theme_loader.py    # ThemeLoader interface
+</span><span id="__span-0-14"><a href="#__codelineno-0-14" id="__codelineno-0-14" name="__codelineno-0-14"></a>│   └── xdg.py            # XDG interface
+</span><span id="__span-0-15"><a href="#__codelineno-0-15" id="__codelineno-0-15" name="__codelineno-0-15"></a>├── services/          # Service implementations
+</span><span id="__span-0-16"><a href="#__codelineno-0-16" id="__codelineno-0-16" name="__codelineno-0-16"></a>│   ├── __init__.py
+</span><span id="__span-0-17"><a href="#__codelineno-0-17" id="__codelineno-0-17" name="__codelineno-0-17"></a>│   ├── environment.py     # Environment service
+</span><span id="__span-0-18"><a href="#__codelineno-0-18" id="__codelineno-0-18" name="__codelineno-0-18"></a>│   ├── file_system.py     # FileSystem implementation
+</span><span id="__span-0-19"><a href="#__codelineno-0-19" id="__codelineno-0-19" name="__codelineno-0-19"></a>│   ├── output_formatter.py # OutputFormatter implementation
+</span><span id="__span-0-20"><a href="#__codelineno-0-20" id="__codelineno-0-20" name="__codelineno-0-20"></a>│   ├── theme_loader.py    # ThemeLoader implementation
+</span><span id="__span-0-21"><a href="#__codelineno-0-21" id="__codelineno-0-21" name="__codelineno-0-21"></a>│   └── xdg.py             # XDG implementation
+</span><span id="__span-0-22"><a href="#__codelineno-0-22" id="__codelineno-0-22" name="__codelineno-0-22"></a>└── tests/             # Test suite
+</span><span id="__span-0-23"><a href="#__codelineno-0-23" id="__codelineno-0-23" name="__codelineno-0-23"></a>    ├── __init__.py
+</span><span id="__span-0-24"><a href="#__codelineno-0-24" id="__codelineno-0-24" name="__codelineno-0-24"></a>    ├── unit/               # Unit tests
+</span><span id="__span-0-25"><a href="#__codelineno-0-25" id="__codelineno-0-25" name="__codelineno-0-25"></a>    │   └── __init__.py
+</span><span id="__span-0-26"><a href="#__codelineno-0-26" id="__codelineno-0-26" name="__codelineno-0-26"></a>    ├── integration/        # Integration tests
+</span><span id="__span-0-27"><a href="#__codelineno-0-27" id="__codelineno-0-27" name="__codelineno-0-27"></a>    │   └── __init__.py
+</span><span id="__span-0-28"><a href="#__codelineno-0-28" id="__codelineno-0-28" name="__codelineno-0-28"></a>    ├── e2e/                # End-to-end tests
+</span><span id="__span-0-29"><a href="#__codelineno-0-29" id="__codelineno-0-29" name="__codelineno-0-29"></a>    │   └── __init__.py
+</span><span id="__span-0-30"><a href="#__codelineno-0-30" id="__codelineno-0-30" name="__codelineno-0-30"></a>    ├── performance/        # Performance tests
+</span><span id="__span-0-31"><a href="#__codelineno-0-31" id="__codelineno-0-31" name="__codelineno-0-31"></a>    │   └── __init__.py
+</span><span id="__span-0-32"><a href="#__codelineno-0-32" id="__codelineno-0-32" name="__codelineno-0-32"></a>    └── support/           # Test doubles for interfaces
+</span><span id="__span-0-33"><a href="#__codelineno-0-33" id="__codelineno-0-33" name="__codelineno-0-33"></a>        ├── __init__.py
+</span><span id="__span-0-34"><a href="#__codelineno-0-34" id="__codelineno-0-34" name="__codelineno-0-34"></a>        ├── environment_double.py
+</span><span id="__span-0-35"><a href="#__codelineno-0-35" id="__codelineno-0-35" name="__codelineno-0-35"></a>        ├── file_system_double.py
+</span><span id="__span-0-36"><a href="#__codelineno-0-36" id="__codelineno-0-36" name="__codelineno-0-36"></a>        ├── output_formatter_double.py
+</span><span id="__span-0-37"><a href="#__codelineno-0-37" id="__codelineno-0-37" name="__codelineno-0-37"></a>        ├── theme_loader_double.py
+</span><span id="__span-0-38"><a href="#__codelineno-0-38" id="__codelineno-0-38" name="__codelineno-0-38"></a>        └── xdg_double.py
+</span></code></pre></div>
+<h2 id="project-script">Project Script<a class="headerlink" href="#project-script" title="Permanent link">¶</a></h2>
+<p>The <code>kde-colors</code> script is the entry point for the application. It is defined in the <code>kde_colors.__main__</code> module.</p>
+<p>pyproject.toml defines the script entry point:
+scripts = {'kde_colors' = "kde_colors.<strong>main</strong>:main"}</p>
+<h2 id="system-overview">System Overview<a class="headerlink" href="#system-overview" title="Permanent link">¶</a></h2>
+<p>The following diagram shows the main components of the system and their relationships:</p>
+<pre class="mermaid"><code>graph TD
+    %% Core Components
+    User[User] --&gt;|interacts with| CLI["CLI (Command Line Interface)"]
+    CLI --&gt;|uses| CLIRunner["CLIRunner"]
+
+    %% Command Handlers
+    CLIRunner --&gt;|dispatches to| CommandHandlers["Command Handlers"]
+    CommandHandlers --&gt;|list command| ListCmd["List Command"]
+    CommandHandlers --&gt;|paths command| PathsCmd["Paths Command"]
+    CommandHandlers --&gt;|theme command| ThemeCmd["Theme Command"]
+
+    %% Services
+    ListCmd --&gt;|uses| ThemeLoader["ThemeLoader"]
+    PathsCmd --&gt;|uses| ThemeLoader
+    ThemeCmd --&gt;|uses| ThemeLoader
+
+    %% Formatters
+    ListCmd --&gt;|formats output via| OutputFormatter["OutputFormatter"]
+    PathsCmd --&gt;|formats output via| OutputFormatter
+    ThemeCmd --&gt;|formats output via| OutputFormatter
+
+    %% Output Formatter Types
+    OutputFormatter --&gt;|creates| TextOut["*TextOutputFormatter"]
+    OutputFormatter --&gt;|creates| JsonOut["*JsonOutputFormatter"]
+
+    %% Note for formatter types
+    JsonOut -.- Note("<p>* is one of <ul><li>List</li><li>Paths</li><li>Theme</li></ul></p>")
+    TextOut -.- Note
+
+    %% Dependencies
+    ThemeLoader --&gt;|depends on| FileSystem["FileSystem"]
+    ThemeLoader --&gt;|depends on| XDG["XDG"]
+    FileSystem --&gt;|depends on| Environment["Environment"]
+    XDG --&gt;|depends on| Environment
+
+    %% Interface Implementation Relationships
+    ThemeLoader -.-&gt;|implements| ThemeLoaderInterface["ThemeLoaderInterface"]
+    FileSystem -.-&gt;|implements| FileSystemInterface["FileSystemInterface"]
+    OutputFormatter -.-&gt;|implements| OutputFormatterInterface["OutputFormatterInterface"]
+    Environment -.-&gt;|implements| EnvironmentInterface["EnvironmentInterface"]
+    XDG -.-&gt;|implements| XDGInterface["XDGInterface"]
+
+    class ThemeLoaderInterface,FileSystemInterface,OutputFormatterInterface,EnvironmentInterface,XDGInterface interface
+    class ThemeLoader,FileSystem,OutputFormatter,Environment,XDG service
+    class CLI,CLIRunner,CommandHandlers,ListCmd,PathsCmd,ThemeCmd cli
+    class User user
+</code></pre>
+<p>This architecture follows a clean, dependency-injected design with clear separation of interfaces and implementations. The CLI layer handles user interaction, the service layer provides core functionality, and interfaces establish contracts between components.</p>
+<h2 id="interface-design">Interface Design<a class="headerlink" href="#interface-design" title="Permanent link">¶</a></h2>
+<p>The system uses protocol-based interfaces to define clear contracts between components. The main interfaces are defined in the <code>kde_colors.interfaces</code> package:</p>
+<h3 id="filesysteminterface">FileSystemInterface<a class="headerlink" href="#filesysteminterface" title="Permanent link">¶</a></h3>
+<ul>
+<li><strong>Purpose</strong>: Abstract file system operations for both reading and writing.</li>
+<li><strong>Location</strong>: <code>kde_colors.interfaces.file_system</code></li>
+<li><strong>Key Methods</strong>: <code>read_text()</code>, <code>exists()</code>, <code>is_file()</code>, <code>is_dir()</code>, <code>glob()</code>, <code>walk()</code>, <code>resolve_path()</code>, <code>expand_path()</code>, <code>list_files()</code>, <code>list_dir()</code>, <code>write_text()</code></li>
+</ul>
+<h4 id="testssupportfile_system_doublepy">tests/support/file_system_double.py<a class="headerlink" href="#testssupportfile_system_doublepy" title="Permanent link">¶</a></h4>
+<ul>
+<li><strong>Implements</strong>: Implements the <code>FileSystemInterface</code> protocol</li>
+<li><strong>Purpose</strong>: Test double implementation of the FileSystem interface for testing.</li>
+<li><strong>Location</strong>: <code>tests.support.file_system_double</code></li>
+<li><strong>Key Methods</strong>: All methods from <code>FileSystemInterface</code> plus additional testing functionality like <code>mkdir()</code>, <code>remove()</code>, <code>rmdir()</code></li>
+</ul>
+<h3 id="xdginterface">XDGInterface<a class="headerlink" href="#xdginterface" title="Permanent link">¶</a></h3>
+<ul>
+<li><strong>Purpose</strong>: Abstract XDG Base Directory Specification that encapsulates XDG directory paths. Allows tests to inject custom XDG directories.</li>
+<li><strong>Location</strong>: <code>kde_colors.interfaces.xdg</code></li>
+<li><strong>Key Methods</strong>: <code>xdg_cache_home()</code>, <code>xdg_config_dirs()</code>, <code>xdg_config_home()</code>, <code>xdg_data_dirs()</code>, <code>xdg_data_home()</code>, <code>xdg_runtime_dir()</code>, <code>xdg_state_home()</code></li>
+</ul>
+<h4 id="testssupportxdg_doublepy">tests/support/xdg_double.py<a class="headerlink" href="#testssupportxdg_doublepy" title="Permanent link">¶</a></h4>
+<ul>
+<li><strong>Implements</strong>: Implements the <code>XDGInterface</code> protocol</li>
+<li><strong>Purpose</strong>: Test double implementation for XDG interface</li>
+<li><strong>Location</strong>: <code>tests.support.xdg_double</code></li>
+<li><strong>Key Methods</strong>: All methods from <code>XDGInterface</code> with customizable directory configurations</li>
+</ul>
+<h3 id="themeloaderinterface">ThemeLoaderInterface<a class="headerlink" href="#themeloaderinterface" title="Permanent link">¶</a></h3>
+<ul>
+<li><strong>Purpose</strong>: Load and query KDE themes using XDG and FileSystem interfaces.</li>
+<li><strong>Location</strong>: <code>kde_colors.interfaces.theme_loader</code></li>
+<li><strong>Key Methods</strong>: <code>get_themes()</code>, <code>get_theme_paths()</code>, <code>get_current_theme()</code>, <code>get_theme_details()</code></li>
+</ul>
+<h4 id="testssupporttheme_loader_doublepy">tests/support/theme_loader_double.py<a class="headerlink" href="#testssupporttheme_loader_doublepy" title="Permanent link">¶</a></h4>
+<ul>
+<li><strong>Implements</strong>: Implements the <code>ThemeLoaderInterface</code> protocol</li>
+<li><strong>Purpose</strong>: Test double implementation for the ThemeLoader interface</li>
+<li><strong>Location</strong>: <code>tests.support.theme_loader_double</code></li>
+<li><strong>Key Methods</strong>: All methods from <code>ThemeLoaderInterface</code> with predefined test data</li>
+</ul>
+<h3 id="outputformatterinterface">OutputFormatterInterface<a class="headerlink" href="#outputformatterinterface" title="Permanent link">¶</a></h3>
+<ul>
+<li><strong>Purpose</strong>: Format theme data into different output formats</li>
+<li><strong>Location</strong>: <code>kde_colors.interfaces.output_formatter</code></li>
+<li><strong>Key Method</strong>: <code>format()</code></li>
+</ul>
+<h4 id="testssupportoutput_formatter_doublepy">tests/support/output_formatter_double.py<a class="headerlink" href="#testssupportoutput_formatter_doublepy" title="Permanent link">¶</a></h4>
+<ul>
+<li><strong>Implements</strong>: Implements the <code>OutputFormatterInterface</code> protocol</li>
+<li><strong>Purpose</strong>: Test double implementation for the OutputFormatter interface</li>
+<li><strong>Location</strong>: <code>tests.support.output_formatter_double</code></li>
+<li><strong>Key Method</strong>: <code>format()</code> with configurable output</li>
+</ul>
+<h3 id="environmentinterface">EnvironmentInterface<a class="headerlink" href="#environmentinterface" title="Permanent link">¶</a></h3>
+<ul>
+<li><strong>Purpose</strong>: Abstract interface that encapsulates environment variables. Allows tests to inject custom environment variables.</li>
+<li><strong>Location</strong>: <code>kde_colors.interfaces.environment</code></li>
+<li><strong>Key Methods</strong>: <code>getenv()</code></li>
+</ul>
+<h4 id="testssupportenvironment_doublepy">tests/support/environment_double.py<a class="headerlink" href="#testssupportenvironment_doublepy" title="Permanent link">¶</a></h4>
+<ul>
+<li><strong>Implements</strong>: Implements the <code>EnvironmentInterface</code> protocol</li>
+<li><strong>Purpose</strong>: Test double implementation for the Environment interface</li>
+<li><strong>Location</strong>: <code>tests.support.environment_double</code></li>
+<li><strong>Key Methods</strong>: <code>getenv()</code>, <code>setenv()</code>, <code>clearenv()</code></li>
+</ul>
+<h3 id="services">Services<a class="headerlink" href="#services" title="Permanent link">¶</a></h3>
+<ul>
+<li><strong>Purpose</strong>: Implement protocol interfaces.</li>
+<li><strong>Location</strong>: <code>kde_colors.services</code></li>
+<li><strong>Key Classes</strong>: <code>ThemeLoader</code>, <code>FileSystem</code>, <code>OutputFormatter</code>, <code>EnvironmentService</code></li>
+</ul>
+<h3 id="themeloader-service">ThemeLoader Service<a class="headerlink" href="#themeloader-service" title="Permanent link">¶</a></h3>
+<ul>
+<li><strong>Purpose</strong>: Load and query KDE themes using XDG and FileSystem Interfaces.</li>
+<li><strong>Location</strong>: <code>kde_colors.services.theme_loader</code></li>
+<li><strong>Key Methods</strong>: <code>load_themes()</code></li>
+</ul>
+<h3 id="filesystem-service">FileSystem Service<a class="headerlink" href="#filesystem-service" title="Permanent link">¶</a></h3>
+<ul>
+<li><strong>Purpose</strong>: Abstract Read-only file system operations injector.</li>
+<li><strong>Location</strong>: <code>kde_colors.services.file_system</code></li>
+<li><strong>Key Methods</strong>: <code>read_file()</code>, <code>file_exists()</code>, <code>exists()</code>, <code>is_file()</code>, <code>is_dir()</code>, <code>glob()</code>, <code>walk()</code>, <code>resolve_path()</code>, <code>expand_path()</code>, <code>list_files()</code>, <code>list_dir()</code></li>
+</ul>
+<h3 id="outputformatter-service">OutputFormatter Service<a class="headerlink" href="#outputformatter-service" title="Permanent link">¶</a></h3>
+<ul>
+<li><strong>Purpose</strong>: Format theme data into different output formats</li>
+<li><strong>Location</strong>: <code>kde_colors.services.output_formatter</code></li>
+<li><strong>Key Method</strong>: <code>format()</code></li>
+</ul>
+<h3 id="environment-service">Environment Service<a class="headerlink" href="#environment-service" title="Permanent link">¶</a></h3>
+<ul>
+<li><strong>Purpose</strong>: Abstract environment detection injector that encapsulates environment variables.  Allows tests to inject custom environment variables.</li>
+<li><strong>Location</strong>: <code>kde_colors.services.environment</code></li>
+<li><strong>Key Methods</strong>: <code>getenv()</code></li>
+</ul>
+<h2 id="theme-data-structure">Theme Data Structure<a class="headerlink" href="#theme-data-structure" title="Permanent link">¶</a></h2>
+<p>Theme data is represented as dictionaries in the application:</p>
+<ul>
+<li>Theme metadata: <code>dict[str, str]</code> - Contains name, package, etc.</li>
+<li>Theme colors: <code>dict[str, dict[str, list[int]]]</code> - Color definitions organized by color group</li>
+<li>Theme paths: <code>list[str]</code> - Lists of paths to theme files</li>
+</ul>
+<h2 id="testing-architecture">Testing Architecture<a class="headerlink" href="#testing-architecture" title="Permanent link">¶</a></h2>
+<h3 id="overview">Overview<a class="headerlink" href="#overview" title="Permanent link">¶</a></h3>
+<p>The KDE Colors project follows a strict set of testing principles designed to ensure high code quality, reliability, and maintainability. The key aspects of the testing architecture include:</p>
+<ul>
+<li><strong>No Mocking</strong>: All forms of mocking, patching, and monkeypatching are explicitly forbidden. This ensures tests are resilient to implementation changes.</li>
+<li><strong>Test Doubles</strong>: Instead of mocks, the project uses test doubles that implement the same interfaces as the production code.</li>
+<li><strong>Test Organization</strong>: Tests are organized by type (unit, integration, e2e) and follow a consistent structure.</li>
+<li><strong>High Coverage</strong>: The project aims for high test coverage (minimum 80%) to ensure reliability.</li>
+</ul>
+<h3 id="test-directory-structure">Test Directory Structure<a class="headerlink" href="#test-directory-structure" title="Permanent link">¶</a></h3>
+<div class="language-bash highlight"><pre><span></span><code><span id="__span-1-1"><a href="#__codelineno-1-1" id="__codelineno-1-1" name="__codelineno-1-1"></a>tests/
+</span><span id="__span-1-2"><a href="#__codelineno-1-2" id="__codelineno-1-2" name="__codelineno-1-2"></a>├──<span class="w"> </span>unit/<span class="w">             </span><span class="c1"># Unit tests for individual components</span>
+</span><span id="__span-1-3"><a href="#__codelineno-1-3" id="__codelineno-1-3" name="__codelineno-1-3"></a>│<span class="w">   </span>├──<span class="w"> </span>interfaces/<span class="w">   </span><span class="c1"># Tests for interface implementations</span>
+</span><span id="__span-1-4"><a href="#__codelineno-1-4" id="__codelineno-1-4" name="__codelineno-1-4"></a>│<span class="w">   </span>├──<span class="w"> </span>services/<span class="w">     </span><span class="c1"># Tests for service implementations</span>
+</span><span id="__span-1-5"><a href="#__codelineno-1-5" id="__codelineno-1-5" name="__codelineno-1-5"></a>│<span class="w">   </span>└──<span class="w"> </span>cli/<span class="w">          </span><span class="c1"># Tests for CLI components</span>
+</span><span id="__span-1-6"><a href="#__codelineno-1-6" id="__codelineno-1-6" name="__codelineno-1-6"></a>├──<span class="w"> </span>integration/<span class="w">      </span><span class="c1"># Integration tests for combinations of components</span>
+</span><span id="__span-1-7"><a href="#__codelineno-1-7" id="__codelineno-1-7" name="__codelineno-1-7"></a>├──<span class="w"> </span>e2e/<span class="w">              </span><span class="c1"># End-to-end tests for full user workflows</span>
+</span><span id="__span-1-8"><a href="#__codelineno-1-8" id="__codelineno-1-8" name="__codelineno-1-8"></a>└──<span class="w"> </span>support/<span class="w">          </span><span class="c1"># Test doubles and utilities used across tests</span>
+</span><span id="__span-1-9"><a href="#__codelineno-1-9" id="__codelineno-1-9" name="__codelineno-1-9"></a><span class="w">    </span>├──<span class="w"> </span>environment_double.py
+</span><span id="__span-1-10"><a href="#__codelineno-1-10" id="__codelineno-1-10" name="__codelineno-1-10"></a><span class="w">    </span>├──<span class="w"> </span>file_system_double.py
+</span><span id="__span-1-11"><a href="#__codelineno-1-11" id="__codelineno-1-11" name="__codelineno-1-11"></a><span class="w">    </span>├──<span class="w"> </span>output_formatter_double.py
+</span><span id="__span-1-12"><a href="#__codelineno-1-12" id="__codelineno-1-12" name="__codelineno-1-12"></a><span class="w">    </span>├──<span class="w"> </span>theme_loader_double.py
+</span><span id="__span-1-13"><a href="#__codelineno-1-13" id="__codelineno-1-13" name="__codelineno-1-13"></a><span class="w">    </span>└──<span class="w"> </span>xdg_double.py
+</span></code></pre></div>
+<h3 id="test-types">Test Types<a class="headerlink" href="#test-types" title="Permanent link">¶</a></h3>
+<p>Tests are organized into different categories based on their scope and purpose:</p>
+<pre class="mermaid"><code>graph TD
+    %% Test Types
+    subgraph "Test Types"
+        UnitTests["<p>Unit Tests</p><p>Test individual components in isolation</p>"]
+        IntegrationTests["<p>Integration Tests</p><p>Test component interactions</p>"]
+        E2ETests["<p>End-to-End Tests</p><p>Test complete user workflows</p>"]
+    end
+
+    UnitTests --&gt;|verify| Components["<p>Individual components</p>"]
+    IntegrationTests --&gt;|verify| Interactions["<p>Component interactions</p>"]
+    E2ETests --&gt;|verify| Workflows["<p>End-to-end workflows</p>"]
+
+    class UnitTests,IntegrationTests,E2ETests testType
+    class Components,Interactions,Workflows testTarget
+</code></pre>
+<h3 id="test-doubles">Test Doubles<a class="headerlink" href="#test-doubles" title="Permanent link">¶</a></h3>
+<p>Instead of using mocks, the project employs test doubles that implement the same interface protocols as production code. This approach ensures tests remain valid even when implementation details change, as long as the interface remains consistent.</p>
+<pre class="mermaid"><code>graph TD
+    %% Interfaces
+    FileSystemInterface["FileSystemInterface"] &lt;-..- FileSystemDouble["FileSystemDouble"]
+    EnvironmentInterface["EnvironmentInterface"] &lt;-..- EnvironmentDouble["EnvironmentDouble"]
+    XDGInterface["XDGInterface"] &lt;-..- XDGDouble["XDGDouble"]
+    ThemeLoaderInterface["ThemeLoaderInterface"] &lt;-..- ThemeLoaderDouble["ThemeLoaderDouble"]
+    OutputFormatterInterface["OutputFormatterInterface"] &lt;-..- OutputFormatterDouble["OutputFormatterDouble"]
+
+    %% Test Descriptions
+    FileSystemDouble -.-&gt; FileSystemTest["<p>In-memory file system simulation with configurable behavior</p>"]
+    EnvironmentDouble -.-&gt; EnvironmentTest["<p>Controllable environment variables for testing</p>"]
+    XDGDouble -.-&gt; XDGTest["<p>Custom XDG paths for test isolation</p>"]
+    ThemeLoaderDouble -.-&gt; ThemeLoaderTest["<p>Pre-configured theme data for predictable testing</p>"]
+    OutputFormatterDouble -.-&gt; OutputFormatterTest["<p>Simplified output for easy verification</p>"]
+
+    class FileSystemInterface,EnvironmentInterface,XDGInterface,ThemeLoaderInterface,OutputFormatterInterface interface
+    class FileSystemDouble,EnvironmentDouble,XDGDouble,ThemeLoaderDouble,OutputFormatterDouble testDouble
+    class FileSystemTest,EnvironmentTest,XDGTest,ThemeLoaderTest,OutputFormatterTest testDesc
+</code></pre>
+<h3 id="testing-patterns">Testing Patterns<a class="headerlink" href="#testing-patterns" title="Permanent link">¶</a></h3>
+<h4 id="dependency-injection">Dependency Injection<a class="headerlink" href="#dependency-injection" title="Permanent link">¶</a></h4>
+<p>All tests leverage dependency injection to substitute test doubles for real implementations. This allows tests to control the environment and isolate the component being tested.</p>
+<div class="language-python highlight"><pre><span></span><code><span id="__span-2-1"><a href="#__codelineno-2-1" id="__codelineno-2-1" name="__codelineno-2-1"></a><span class="c1"># Example: Testing with dependency injection</span>
+</span><span id="__span-2-2"><a href="#__codelineno-2-2" id="__codelineno-2-2" name="__codelineno-2-2"></a><span class="k">def</span><span class="w"> </span><span class="nf">test_theme_loader_gets_themes</span><span class="p">(</span><span class="n">file_system_double</span><span class="p">,</span> <span class="n">xdg_double</span><span class="p">):</span>
+</span><span id="__span-2-3"><a href="#__codelineno-2-3" id="__codelineno-2-3" name="__codelineno-2-3"></a>    <span class="c1"># Arrange</span>
+</span><span id="__span-2-4"><a href="#__codelineno-2-4" id="__codelineno-2-4" name="__codelineno-2-4"></a>    <span class="n">theme_loader</span> <span class="o">=</span> <span class="n">ThemeLoader</span><span class="p">(</span><span class="n">file_system</span><span class="o">=</span><span class="n">file_system_double</span><span class="p">,</span> <span class="n">xdg</span><span class="o">=</span><span class="n">xdg_double</span><span class="p">)</span>
+</span><span id="__span-2-5"><a href="#__codelineno-2-5" id="__codelineno-2-5" name="__codelineno-2-5"></a>
+</span><span id="__span-2-6"><a href="#__codelineno-2-6" id="__codelineno-2-6" name="__codelineno-2-6"></a>    <span class="c1"># Act</span>
+</span><span id="__span-2-7"><a href="#__codelineno-2-7" id="__codelineno-2-7" name="__codelineno-2-7"></a>    <span class="n">themes</span> <span class="o">=</span> <span class="n">theme_loader</span><span class="o">.</span><span class="n">get_themes</span><span class="p">()</span>
+</span><span id="__span-2-8"><a href="#__codelineno-2-8" id="__codelineno-2-8" name="__codelineno-2-8"></a>
+</span><span id="__span-2-9"><a href="#__codelineno-2-9" id="__codelineno-2-9" name="__codelineno-2-9"></a>    <span class="c1"># Assert</span>
+</span><span id="__span-2-10"><a href="#__codelineno-2-10" id="__codelineno-2-10" name="__codelineno-2-10"></a>    <span class="k">assert</span> <span class="nb">len</span><span class="p">(</span><span class="n">themes</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">0</span>
+</span></code></pre></div>
+<h4 id="arrange-act-assert">Arrange-Act-Assert<a class="headerlink" href="#arrange-act-assert" title="Permanent link">¶</a></h4>
+<p>Tests follow the Arrange-Act-Assert pattern to clearly separate the setup, execution, and verification phases of each test.</p>
+<h4 id="test-doubles-configuration">Test Doubles Configuration<a class="headerlink" href="#test-doubles-configuration" title="Permanent link">¶</a></h4>
+<p>Test doubles are designed to be easily configured for specific test scenarios:</p>
+<div class="language-python highlight"><pre><span></span><code><span id="__span-3-1"><a href="#__codelineno-3-1" id="__codelineno-3-1" name="__codelineno-3-1"></a><span class="c1"># Example: Configuring a test double</span>
+</span><span id="__span-3-2"><a href="#__codelineno-3-2" id="__codelineno-3-2" name="__codelineno-3-2"></a><span class="k">def</span><span class="w"> </span><span class="nf">test_file_system_operations</span><span class="p">(</span><span class="n">file_system_double</span><span class="p">):</span>
+</span><span id="__span-3-3"><a href="#__codelineno-3-3" id="__codelineno-3-3" name="__codelineno-3-3"></a>    <span class="c1"># Arrange - configure the test double</span>
+</span><span id="__span-3-4"><a href="#__codelineno-3-4" id="__codelineno-3-4" name="__codelineno-3-4"></a>    <span class="n">file_system_double</span><span class="o">.</span><span class="n">write_text</span><span class="p">(</span><span class="s2">"/path/to/file.txt"</span><span class="p">,</span> <span class="s2">"test content"</span><span class="p">)</span>
+</span><span id="__span-3-5"><a href="#__codelineno-3-5" id="__codelineno-3-5" name="__codelineno-3-5"></a>
+</span><span id="__span-3-6"><a href="#__codelineno-3-6" id="__codelineno-3-6" name="__codelineno-3-6"></a>    <span class="c1"># Act</span>
+</span><span id="__span-3-7"><a href="#__codelineno-3-7" id="__codelineno-3-7" name="__codelineno-3-7"></a>    <span class="n">exists</span> <span class="o">=</span> <span class="n">file_system_double</span><span class="o">.</span><span class="n">exists</span><span class="p">(</span><span class="s2">"/path/to/file.txt"</span><span class="p">)</span>
+</span><span id="__span-3-8"><a href="#__codelineno-3-8" id="__codelineno-3-8" name="__codelineno-3-8"></a>    <span class="n">content</span> <span class="o">=</span> <span class="n">file_system_double</span><span class="o">.</span><span class="n">read_text</span><span class="p">(</span><span class="s2">"/path/to/file.txt"</span><span class="p">)</span>
+</span><span id="__span-3-9"><a href="#__codelineno-3-9" id="__codelineno-3-9" name="__codelineno-3-9"></a>
+</span><span id="__span-3-10"><a href="#__codelineno-3-10" id="__codelineno-3-10" name="__codelineno-3-10"></a>    <span class="c1"># Assert</span>
+</span><span id="__span-3-11"><a href="#__codelineno-3-11" id="__codelineno-3-11" name="__codelineno-3-11"></a>    <span class="k">assert</span> <span class="n">exists</span> <span class="ow">is</span> <span class="kc">True</span>
+</span><span id="__span-3-12"><a href="#__codelineno-3-12" id="__codelineno-3-12" name="__codelineno-3-12"></a>    <span class="k">assert</span> <span class="n">content</span> <span class="o">==</span> <span class="s2">"test content"</span>
+</span></code></pre></div>
+<h3 id="integration-testing">Integration Testing<a class="headerlink" href="#integration-testing" title="Permanent link">¶</a></h3>
+<p>Integration tests verify that components work correctly together. They typically use the same test doubles as unit tests but focus on the interaction between multiple components.</p>
+<div class="language-python highlight"><pre><span></span><code><span id="__span-4-1"><a href="#__codelineno-4-1" id="__codelineno-4-1" name="__codelineno-4-1"></a><span class="c1"># Example: Integration test</span>
+</span><span id="__span-4-2"><a href="#__codelineno-4-2" id="__codelineno-4-2" name="__codelineno-4-2"></a><span class="k">def</span><span class="w"> </span><span class="nf">test_cli_list_command_with_theme_loader</span><span class="p">(</span><span class="n">file_system_double</span><span class="p">,</span> <span class="n">xdg_double</span><span class="p">):</span>
+</span><span id="__span-4-3"><a href="#__codelineno-4-3" id="__codelineno-4-3" name="__codelineno-4-3"></a>    <span class="c1"># Arrange - setup the test environment</span>
+</span><span id="__span-4-4"><a href="#__codelineno-4-4" id="__codelineno-4-4" name="__codelineno-4-4"></a>    <span class="n">theme_loader</span> <span class="o">=</span> <span class="n">ThemeLoader</span><span class="p">(</span><span class="n">file_system</span><span class="o">=</span><span class="n">file_system_double</span><span class="p">,</span> <span class="n">xdg</span><span class="o">=</span><span class="n">xdg_double</span><span class="p">)</span>
+</span><span id="__span-4-5"><a href="#__codelineno-4-5" id="__codelineno-4-5" name="__codelineno-4-5"></a>    <span class="n">cli_runner</span> <span class="o">=</span> <span class="n">CLIRunner</span><span class="p">(</span><span class="n">theme_loader</span><span class="o">=</span><span class="n">theme_loader</span><span class="p">)</span>
+</span><span id="__span-4-6"><a href="#__codelineno-4-6" id="__codelineno-4-6" name="__codelineno-4-6"></a>
+</span><span id="__span-4-7"><a href="#__codelineno-4-7" id="__codelineno-4-7" name="__codelineno-4-7"></a>    <span class="c1"># Configure test doubles with test data</span>
+</span><span id="__span-4-8"><a href="#__codelineno-4-8" id="__codelineno-4-8" name="__codelineno-4-8"></a>    <span class="n">file_system_double</span><span class="o">.</span><span class="n">write_text</span><span class="p">(</span><span class="s2">"/themes/theme1.colors"</span><span class="p">,</span> <span class="s2">"[General]</span><span class="se">\n</span><span class="s2">Name=Theme1"</span><span class="p">)</span>
+</span><span id="__span-4-9"><a href="#__codelineno-4-9" id="__codelineno-4-9" name="__codelineno-4-9"></a>
+</span><span id="__span-4-10"><a href="#__codelineno-4-10" id="__codelineno-4-10" name="__codelineno-4-10"></a>    <span class="c1"># Act - run the CLI command</span>
+</span><span id="__span-4-11"><a href="#__codelineno-4-11" id="__codelineno-4-11" name="__codelineno-4-11"></a>    <span class="n">result</span> <span class="o">=</span> <span class="n">cli_runner</span><span class="o">.</span><span class="n">run</span><span class="p">([</span><span class="s2">"list"</span><span class="p">,</span> <span class="s2">"--json"</span><span class="p">])</span>
+</span><span id="__span-4-12"><a href="#__codelineno-4-12" id="__codelineno-4-12" name="__codelineno-4-12"></a>
+</span><span id="__span-4-13"><a href="#__codelineno-4-13" id="__codelineno-4-13" name="__codelineno-4-13"></a>    <span class="c1"># Assert - verify the output</span>
+</span><span id="__span-4-14"><a href="#__codelineno-4-14" id="__codelineno-4-14" name="__codelineno-4-14"></a>    <span class="k">assert</span> <span class="s2">"Theme1"</span> <span class="ow">in</span> <span class="n">result</span>
+</span></code></pre></div>
+<h3 id="end-to-end-testing">End-to-End Testing<a class="headerlink" href="#end-to-end-testing" title="Permanent link">¶</a></h3>
+<p>E2E tests verify complete user workflows by testing the application from the CLI entry point to the output, ensuring that all components work together correctly.</p>
+<div class="language-python highlight"><pre><span></span><code><span id="__span-5-1"><a href="#__codelineno-5-1" id="__codelineno-5-1" name="__codelineno-5-1"></a><span class="c1"># Example: End-to-End test</span>
+</span><span id="__span-5-2"><a href="#__codelineno-5-2" id="__codelineno-5-2" name="__codelineno-5-2"></a><span class="nd">@pytest</span><span class="o">.</span><span class="n">mark</span><span class="o">.</span><span class="n">usefixtures</span><span class="p">(</span><span class="s2">"kde_home"</span><span class="p">)</span>
+</span><span id="__span-5-3"><a href="#__codelineno-5-3" id="__codelineno-5-3" name="__codelineno-5-3"></a><span class="k">def</span><span class="w"> </span><span class="nf">test_list_text_output</span><span class="p">(</span><span class="n">run_cli</span><span class="p">:</span> <span class="n">CallableABC</span><span class="p">[[</span><span class="nb">list</span><span class="p">[</span><span class="nb">str</span><span class="p">],</span> <span class="n">Path</span> <span class="o">|</span> <span class="kc">None</span><span class="p">],</span> <span class="nb">tuple</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="nb">str</span><span class="p">,</span> <span class="nb">str</span><span class="p">]])</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+</span><span id="__span-5-4"><a href="#__codelineno-5-4" id="__codelineno-5-4" name="__codelineno-5-4"></a><span class="w">    </span><span class="sd">"""Test the list command with default text output."""</span>
+</span><span id="__span-5-5"><a href="#__codelineno-5-5" id="__codelineno-5-5" name="__codelineno-5-5"></a>    <span class="c1"># Run the CLI command from the temporary environment</span>
+</span><span id="__span-5-6"><a href="#__codelineno-5-6" id="__codelineno-5-6" name="__codelineno-5-6"></a>    <span class="c1"># kde_home is used by the fixture to set up the environment</span>
+</span><span id="__span-5-7"><a href="#__codelineno-5-7" id="__codelineno-5-7" name="__codelineno-5-7"></a>    <span class="n">exit_code</span><span class="p">,</span> <span class="n">stdout</span><span class="p">,</span> <span class="n">stderr</span> <span class="o">=</span> <span class="n">run_cli</span><span class="p">([</span><span class="s2">"list"</span><span class="p">],</span> <span class="kc">None</span><span class="p">)</span>
+</span><span id="__span-5-8"><a href="#__codelineno-5-8" id="__codelineno-5-8" name="__codelineno-5-8"></a>
+</span><span id="__span-5-9"><a href="#__codelineno-5-9" id="__codelineno-5-9" name="__codelineno-5-9"></a>    <span class="c1"># Check that the command succeeded</span>
+</span><span id="__span-5-10"><a href="#__codelineno-5-10" id="__codelineno-5-10" name="__codelineno-5-10"></a>    <span class="k">assert</span> <span class="n">exit_code</span> <span class="o">==</span> <span class="mi">0</span><span class="p">,</span> <span class="sa">f</span><span class="s2">"Command failed with stderr: </span><span class="si">{</span><span class="n">stderr</span><span class="si">}</span><span class="s2">"</span>
+</span><span id="__span-5-11"><a href="#__codelineno-5-11" id="__codelineno-5-11" name="__codelineno-5-11"></a>
+</span><span id="__span-5-12"><a href="#__codelineno-5-12" id="__codelineno-5-12" name="__codelineno-5-12"></a>    <span class="c1"># Verify output contains expected themes</span>
+</span><span id="__span-5-13"><a href="#__codelineno-5-13" id="__codelineno-5-13" name="__codelineno-5-13"></a>    <span class="k">assert</span> <span class="s2">"Available desktop themes"</span> <span class="ow">in</span> <span class="n">stdout</span>
+</span><span id="__span-5-14"><a href="#__codelineno-5-14" id="__codelineno-5-14" name="__codelineno-5-14"></a>    <span class="k">assert</span> <span class="s2">"Alfa"</span> <span class="ow">in</span> <span class="n">stdout</span>
+</span><span id="__span-5-15"><a href="#__codelineno-5-15" id="__codelineno-5-15" name="__codelineno-5-15"></a>    <span class="k">assert</span> <span class="s2">"Bravo"</span> <span class="ow">in</span> <span class="n">stdout</span>
+</span><span id="__span-5-16"><a href="#__codelineno-5-16" id="__codelineno-5-16" name="__codelineno-5-16"></a>    <span class="k">assert</span> <span class="s2">"Charlie"</span> <span class="ow">in</span> <span class="n">stdout</span>
+</span><span id="__span-5-17"><a href="#__codelineno-5-17" id="__codelineno-5-17" name="__codelineno-5-17"></a>    <span class="k">assert</span> <span class="s2">"Delta"</span> <span class="ow">in</span> <span class="n">stdout</span>
+</span></code></pre></div>
+<p>This example demonstrates how E2E tests use the actual CLI entry point (<code>run_cli</code>). The test verifies that the command produces the expected output format and content.</p>
+<h2 id="cli-package-architecture">CLI Package Architecture<a class="headerlink" href="#cli-package-architecture" title="Permanent link">¶</a></h2>
+<p>The CLI module follows a structured architecture for handling commands and formatting output:</p>
+<h3 id="cli_arg_parserpy">cli_arg_parser.py<a class="headerlink" href="#cli_arg_parserpy" title="Permanent link">¶</a></h3>
+<ul>
+<li><strong>Purpose</strong>: Defines and handles command-line argument parsing</li>
+<li><strong>Key Components</strong>:</li>
+<li><code>create_parser()</code>: Creates and configures the command-line argument parser</li>
+<li><code>parse_args()</code>: Parses command-line arguments and applies defaults</li>
+<li><code>get_version()</code>: Retrieves the application version</li>
+</ul>
+<h3 id="cli_runnerpy">cli_runner.py<a class="headerlink" href="#cli_runnerpy" title="Permanent link">¶</a></h3>
+<ul>
+<li><strong>Purpose</strong>: Executes CLI commands based on parsed arguments</li>
+<li><strong>Key Components</strong>:</li>
+<li><code>CLIRunner</code> class: Orchestrates the execution of commands</li>
+<li>Command handlers: <code>_cmd_list()</code>, <code>_cmd_paths()</code>, <code>_cmd_theme()</code></li>
+<li><code>run_cli()</code>: Entry point function for the application</li>
+</ul>
+<h3 id="command-line-argument-parsing">Command-line Argument Parsing<a class="headerlink" href="#command-line-argument-parsing" title="Permanent link">¶</a></h3>
+<p>The CLI argument parsing architecture uses the sub-parser pattern from Python's <code>argparse</code> module:</p>
+<pre class="mermaid"><code>graph TD
+    %% CLI Argument Parsing Architecture
+    main_parser[Main Parser]--&gt;parent_parser[Parent Parser with Global Options]
+    main_parser--&gt;subparsers[Subparsers]
+
+    subparsers--&gt;list_cmd[List Command]
+    subparsers--&gt;paths_cmd[Paths Command]
+    subparsers--&gt;theme_cmd[Theme Command]
+
+    parent_parser-.-&gt;|inherits|list_cmd
+    parent_parser-.-&gt;|inherits|paths_cmd
+    parent_parser-.-&gt;|inherits|theme_cmd
+
+    %% Options flow
+    list_cmd--&gt;parsed_args[Parsed Arguments]
+    paths_cmd--&gt;parsed_args
+    theme_cmd--&gt;parsed_args
+    parsed_args--&gt;command_handler[Command Handler]
+</code></pre>
+<p>This architecture has several benefits:</p>
+<ol>
+<li><strong>Consistent Option Handling</strong>: Global options like <code>--verbose</code> are defined once but work universally</li>
+<li><strong>Modular Design</strong>: Each command is encapsulated in its own parser</li>
+<li><strong>Extensible</strong>: Adding new commands requires minimal changes to existing code</li>
+<li><strong>Uniform Help Text</strong>: Help documentation is standardized across all commands</li>
+</ol>
+<h3 id="version-management">Version Management<a class="headerlink" href="#version-management" title="Permanent link">¶</a></h3>
+<p>Version information is managed through Python's standard library:</p>
+<pre class="mermaid"><code>graph LR
+    %% Version Management Architecture
+    pyproject[pyproject.toml]--&gt;|defines|package_version[Package Version]
+    package_version--&gt;|read by|importlib[importlib.metadata]
+    importlib--&gt;|provides|version_var[__version__ Variable]
+    version_var--&gt;|used by|cli[CLI --version Flag]
+    version_var--&gt;|used by|error_reporting[Error Reporting]
+</code></pre>
+<p>This approach follows Python's best practices:</p>
+<ol>
+<li>The version is defined exactly once in the project metadata</li>
+<li>Runtime version detection uses the standard library's <code>importlib.metadata</code></li>
+<li>No hardcoded version strings throughout the codebase</li>
+</ol>
+<h2 id="components">Components<a class="headerlink" href="#components" title="Permanent link">¶</a></h2>
+<h3 id="cli">CLI<a class="headerlink" href="#cli" title="Permanent link">¶</a></h3>
+<p>The Command Line Interface (CLI) is the main entry point for users. It handles:</p>
+<ul>
+<li>Command-line argument parsing</li>
+<li>User input validation</li>
+<li>Coordinating between different components</li>
+</ul>
+<h3 id="core-services">Core Services<a class="headerlink" href="#core-services" title="Permanent link">¶</a></h3>
+<h4 id="themeloader">ThemeLoader<a class="headerlink" href="#themeloader" title="Permanent link">¶</a></h4>
+<p>The ThemeLoader component is responsible for:</p>
+<ul>
+<li>Loading theme data from KDE configuration files</li>
+<li>Validating theme data</li>
+<li>Providing a clean interface for accessing theme properties</li>
+</ul>
+<h4 id="filesystem">FileSystem<a class="headerlink" href="#filesystem" title="Permanent link">¶</a></h4>
+<p>The FileSystem component handles all file system operations:</p>
+<ul>
+<li>Enables test doubling by routing file system operations to a protocol interface</li>
+<li>Provides a clean interface for accessing file system properties</li>
+<li>Handles file system errors</li>
+</ul>
+<h3 id="output-formatters">Output Formatters<a class="headerlink" href="#output-formatters" title="Permanent link">¶</a></h3>
+<p>Output formatters convert theme data into different formats:</p>
+<ul>
+<li>JSON</li>
+<li>Human-readable text</li>
+<li>Potentially other formats in the future</li>
+</ul>
+<aside class="md-source-file">
+<span class="md-source-file__fact">
+<span class="md-icon" title="Last update">
+<svg viewbox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M21 13.1c-.1 0-.3.1-.4.2l-1 1 2.1 2.1 1-1c.2-.2.2-.6 0-.8l-1.3-1.3c-.1-.1-.2-.2-.4-.2m-1.9 1.8-6.1 6V23h2.1l6.1-6.1zM12.5 7v5.2l4 2.4-1 1L11 13V7zM11 21.9c-5.1-.5-9-4.8-9-9.9C2 6.5 6.5 2 12 2c5.3 0 9.6 4.1 10 9.3-.3-.1-.6-.2-1-.2s-.7.1-1 .2C19.6 7.2 16.2 4 12 4c-4.4 0-8 3.6-8 8 0 4.1 3.1 7.5 7.1 7.9l-.1.2z"></path></svg>
+</span>
+<span class="git-revision-date-localized-plugin git-revision-date-localized-plugin-timeago" title="June 24, 2025 12:46:20 CDT"><span class="timeago" datetime="2025-06-24T12:46:20-05:00" locale="en"></span></span><span class="git-revision-date-localized-plugin git-revision-date-localized-plugin-iso_date" title="June 24, 2025 12:46:20 CDT">2025-06-24</span>
+</span>
+</aside>
+</article>
+</div>
+<script>var tabs=__md_get("__tabs");if(Array.isArray(tabs))e:for(var set of document.querySelectorAll(".tabbed-set")){var labels=set.querySelector(".tabbed-labels");for(var tab of tabs)for(var label of labels.getElementsByTagName("label"))if(label.innerText.trim()===tab){var input=document.getElementById(label.htmlFor);input.checked=!0;continue e}}</script>
+<script>var target=document.getElementById(location.hash.slice(1));target&&target.name&&(target.checked=target.name.startsWith("__tabbed_"))</script>
+</div>
+</main>
+<footer class="md-footer">
+<div class="md-footer-meta md-typeset">
+<div class="md-footer-meta__inner md-grid">
+<div class="md-copyright">
+  
+  
+    Made with
+    <a href="https://squidfunk.github.io/mkdocs-material/" rel="noopener" target="_blank">
+      Material for MkDocs
+    </a>
+</div>
+</div>
+</div>
+</footer>
+</div>
+<div class="md-dialog" data-md-component="dialog">
+<div class="md-dialog__inner md-typeset"></div>
+</div>
+<script id="__config" type="application/json">{"base": "..", "features": ["navigation.instant", "navigation.tracking", "navigation.tabs", "navigation.sections", "navigation.expand", "navigation.indexes", "navigation.sticky", "navigation.path", "toc.follow", "search.suggest", "search.highlight", "content.tabs.link", "content.code.annotation", "content.code.copy"], "search": "../assets/javascripts/workers/search.d50fe291.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": null}</script>
+<script src="../assets/javascripts/bundle.13a4f30d.min.js"></script>
+<script src="../js/timeago.min.js"></script>
+<script src="../js/timeago_mkdocs_material.js"></script>
+<script type="module">import mermaid from "https://unpkg.com/mermaid@11.6.0/dist/mermaid.esm.min.mjs";
+window.mermaidConfig = {default: {
+    startOnLoad: false
+}};</script></body>
+</html>
