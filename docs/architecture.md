@@ -16,29 +16,35 @@ kde_colors/
 │   └── cli_runner.py      # Command execution
 ├── interfaces/        # Protocol definitions
 │   ├── __init__.py
+│   ├── environment.py     # Environment interface
 │   ├── file_system.py     # FileSystem interface
 │   ├── output_formatter.py # OutputFormatter interface
-│   └── theme_loader.py    # ThemeLoader interface
+│   ├── theme_loader.py    # ThemeLoader interface
+│   └── xdg.py            # XDG interface
 ├── services/          # Service implementations
 │   ├── __init__.py
 │   ├── environment.py     # Environment service
-│   ├── file_system.py     # Read-only FileSystem implementation
+│   ├── file_system.py     # FileSystem implementation
 │   ├── output_formatter.py # OutputFormatter implementation
-│   └── theme_loader.py    # ThemeLoader implementation
+│   ├── theme_loader.py    # ThemeLoader implementation
+│   └── xdg.py             # XDG implementation
 └── tests/             # Test suite
     ├── __init__.py
     ├── unit/               # Unit tests
     │   └── __init__.py
-    ├── integration/          # Integration tests
+    ├── integration/        # Integration tests
     │   └── __init__.py
-    └── e2e/             # End-to-end tests
+    ├── e2e/                # End-to-end tests
     │   └── __init__.py
-    ├── interfaces/        # Interface test doubles
-    │   ├── __init__.py
-    │   ├── environment_test_interface.py
-    │   └── file_system_double.py
-    ├── fixtures/          # Test fixtures
-        └── __init__.py
+    ├── performance/        # Performance tests
+    │   └── __init__.py
+    └── support/           # Test doubles for interfaces
+        ├── __init__.py
+        ├── environment_double.py
+        ├── file_system_double.py
+        ├── output_formatter_double.py
+        ├── theme_loader_double.py
+        └── xdg_double.py
 ```
 
 ## Project Script
@@ -52,52 +58,125 @@ scripts = {'kde_colors' = "kde_colors.__main__:main"}
 
 The following diagram shows the main components of the system and their relationships:
 
+```mermaid
+graph TD
+    %% Core Components
+    User[User] -->|interacts with| CLI["CLI (Command Line Interface)"]
+    CLI -->|uses| CLIRunner["CLIRunner"]
+
+    %% Command Handlers
+    CLIRunner -->|dispatches to| CommandHandlers["Command Handlers"]
+    CommandHandlers -->|list command| ListCmd["List Command"]
+    CommandHandlers -->|paths command| PathsCmd["Paths Command"]
+    CommandHandlers -->|theme command| ThemeCmd["Theme Command"]
+
+    %% Services
+    ListCmd -->|uses| ThemeLoader["ThemeLoader"]
+    PathsCmd -->|uses| ThemeLoader
+    ThemeCmd -->|uses| ThemeLoader
+
+    %% Formatters
+    ListCmd -->|formats output via| OutputFormatter["OutputFormatter"]
+    PathsCmd -->|formats output via| OutputFormatter
+    ThemeCmd -->|formats output via| OutputFormatter
+
+    %% Output Formatter Types
+    OutputFormatter -->|creates| TextOut["*TextOutputFormatter"]
+    OutputFormatter -->|creates| JsonOut["*JsonOutputFormatter"]
+
+    %% Note for formatter types
+    JsonOut -.- Note("<p>* is one of <ul><li>List</li><li>Paths</li><li>Theme</li></ul></p>")
+    TextOut -.- Note
+
+    %% Dependencies
+    ThemeLoader -->|depends on| FileSystem["FileSystem"]
+    ThemeLoader -->|depends on| XDG["XDG"]
+    FileSystem -->|depends on| Environment["Environment"]
+    XDG -->|depends on| Environment
+
+    %% Interface Implementation Relationships
+    ThemeLoader -.->|implements| ThemeLoaderInterface["ThemeLoaderInterface"]
+    FileSystem -.->|implements| FileSystemInterface["FileSystemInterface"]
+    OutputFormatter -.->|implements| OutputFormatterInterface["OutputFormatterInterface"]
+    Environment -.->|implements| EnvironmentInterface["EnvironmentInterface"]
+    XDG -.->|implements| XDGInterface["XDGInterface"]
+
+    class ThemeLoaderInterface,FileSystemInterface,OutputFormatterInterface,EnvironmentInterface,XDGInterface interface
+    class ThemeLoader,FileSystem,OutputFormatter,Environment,XDG service
+    class CLI,CLIRunner,CommandHandlers,ListCmd,PathsCmd,ThemeCmd cli
+    class User user
+```
+
+This architecture follows a clean, dependency-injected design with clear separation of interfaces and implementations. The CLI layer handles user interaction, the service layer provides core functionality, and interfaces establish contracts between components.
+
 ## Interface Design
 
 The system uses protocol-based interfaces to define clear contracts between components. The main interfaces are defined in the `kde_colors.interfaces` package:
 
-### FileSystem Interface
+### FileSystemInterface
 
-- __Purpose__: Abstract Read-only file system operations injector.
+- __Purpose__: Abstract file system operations for both reading and writing.
 - __Location__: `kde_colors.interfaces.file_system`
-- __Key Methods__: `read_file()`, `file_exists()`, `exists()`, `is_file()`, `is_dir()`, `glob()`, `walk()`, `resolve_path()`, `expand_path()`, `list_files()`, `list_dir()`
+- __Key Methods__: `read_text()`, `exists()`, `is_file()`, `is_dir()`, `glob()`, `walk()`, `resolve_path()`, `expand_path()`, `list_files()`, `list_dir()`, `write_text()`
 
-#### tests/interfaces/file_system_double.py
+#### tests/support/file_system_double.py
 
-- __Inherits__: Inherits from  `kde_colors.interfaces.file_system`
-- __Purpose__: Mock implementation of the FileSystem injector interface for testing.  Adds write operations.
-- __Location__: `kde_colors.tests.interfaces.file_system_double`
-- __Key Methods__: `write_file()`, `mkdir`, `delete_file()`, `rmdir()`
+- __Implements__: Implements the `FileSystemInterface` protocol
+- __Purpose__: Test double implementation of the FileSystem interface for testing.
+- __Location__: `tests.support.file_system_double`
+- __Key Methods__: All methods from `FileSystemInterface` plus additional testing functionality like `mkdir()`, `remove()`, `rmdir()`
 
-### XDG Interface
+### XDGInterface
 
-- __Purpose__: Abstract XDG Base Directory Specification injector that encapsulates xdg-base-dirs.  Allows tests to inject custom XDG directories (in-memory or temporary directories).
+- __Purpose__: Abstract XDG Base Directory Specification that encapsulates XDG directory paths. Allows tests to inject custom XDG directories.
 - __Location__: `kde_colors.interfaces.xdg`
 - __Key Methods__: `xdg_cache_home()`, `xdg_config_dirs()`, `xdg_config_home()`, `xdg_data_dirs()`, `xdg_data_home()`, `xdg_runtime_dir()`, `xdg_state_home()`
 
-### ThemeLoader Interface
+#### tests/support/xdg_double.py
 
-- __Purpose__: Load and query KDE themes using XDG and FileSystem Interfaces.
+- __Implements__: Implements the `XDGInterface` protocol
+- __Purpose__: Test double implementation for XDG interface
+- __Location__: `tests.support.xdg_double`
+- __Key Methods__: All methods from `XDGInterface` with customizable directory configurations
+
+### ThemeLoaderInterface
+
+- __Purpose__: Load and query KDE themes using XDG and FileSystem interfaces.
 - __Location__: `kde_colors.interfaces.theme_loader`
-- __Key Methods__: `load_themes()`
+- __Key Methods__: `get_themes()`, `get_theme_paths()`, `get_current_theme()`, `get_theme_details()`
 
-### OutputFormatter Interface
+#### tests/support/theme_loader_double.py
+
+- __Implements__: Implements the `ThemeLoaderInterface` protocol
+- __Purpose__: Test double implementation for the ThemeLoader interface
+- __Location__: `tests.support.theme_loader_double`
+- __Key Methods__: All methods from `ThemeLoaderInterface` with predefined test data
+
+### OutputFormatterInterface
 
 - __Purpose__: Format theme data into different output formats
 - __Location__: `kde_colors.interfaces.output_formatter`
 - __Key Method__: `format()`
 
-### Environment Interface
+#### tests/support/output_formatter_double.py
 
-- __Purpose__: Abstract environment detection injector that encapsulates environment variables.  Allows tests to inject custom environment variables.
+- __Implements__: Implements the `OutputFormatterInterface` protocol
+- __Purpose__: Test double implementation for the OutputFormatter interface
+- __Location__: `tests.support.output_formatter_double`
+- __Key Method__: `format()` with configurable output
+
+### EnvironmentInterface
+
+- __Purpose__: Abstract interface that encapsulates environment variables. Allows tests to inject custom environment variables.
 - __Location__: `kde_colors.interfaces.environment`
 - __Key Methods__: `getenv()`
 
-### Environment Test Interface
+#### tests/support/environment_double.py
 
-- __Purpose__: Abstract environment detection injector that encapsulates environment variables.  Allows tests to inject custom environment variables.
-- __Location__: `kde_colors.tests.interfaces.environment_test_interface`
-- __Key Methods__: `getenv()`, `setenv()`, `unsetenv()`
+- __Implements__: Implements the `EnvironmentInterface` protocol
+- __Purpose__: Test double implementation for the Environment interface
+- __Location__: `tests.support.environment_double`
+- __Key Methods__: `getenv()`, `setenv()`, `clearenv()`
 
 ### Services
 
@@ -129,14 +208,13 @@ The system uses protocol-based interfaces to define clear contracts between comp
 - __Location__: `kde_colors.services.environment`
 - __Key Methods__: `getenv()`
 
-## Data Classes
+## Theme Data Structure
 
-### Theme Class
+Theme data is represented as dictionaries in the application:
 
-- __Purpose__: Represents a KDE theme.
-- __Location__: `kde_colors.theme`
-- __Key Attributes__: `name`, `id`, `package`, `normalized_name`, `colors`
-- __Key Methods__: `__str__()`, `to_json()`, `load()`
+- Theme metadata: `dict[str, str]` - Contains name, package, etc.
+- Theme colors: `dict[str, dict[str, list[int]]]` - Color definitions organized by color group
+- Theme paths: `list[str]` - Lists of paths to theme files
 
 ## CLI Package Architecture
 

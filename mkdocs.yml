@@ -87,16 +87,15 @@ markdown_extensions:
 
 nav:
   - Home: index.md
+  - User Guide: user-guide.md
   - Architecture: architecture.md
   - API Reference: reference/
 
-  - Project Information:
-    - Project Overview (README.md): project-files/README.md
-    - Developer Guide (DEV-README.md): project-files/DEV-README.md
-    - Software Requirements Specification: software-requirements-specification.md
-    - Software Design Document: software-design-document.md
-    - Test Design Document: test-design-document.md
-    - Reference Cross Check: reference-cross-check.md
+  - Technical Documentation:
+    - Theme Files: theme-files.md
+    - Color Files: color-files.md
 
-  - Miscellany:
-    - License: project-files/LICENSE
+  - Project Information:
+    - Project Overview: project-files/README.md
+    - Developer Guide: project-files/DEV-README.md
+    - License: license.md
