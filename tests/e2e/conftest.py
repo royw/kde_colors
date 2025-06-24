@@ -53,11 +53,12 @@ def kde_home() -> Generator[Path, None, None]:
         plasma_theme_dir.mkdir(parents=True, exist_ok=True)
 
         # Create a plasmarc file with active theme
-        plasma_rc = kde_config_dir / "plasmarc"
+        # Note: This must be directly in the config directory, not in the kde subdirectory
+        plasma_rc = temp_home / ".config" / "plasmarc"
         plasma_rc.parent.mkdir(parents=True, exist_ok=True)
         plasma_rc.write_text(
             """[Theme]
-name=Alfa
+name=default
 """
         )
 

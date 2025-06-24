@@ -48,26 +48,16 @@ def test_theme_current(run_cli: CallableABC[[list[str], Path | None], tuple[int,
     """Test the theme command with no theme name (current theme)."""
     # kde_home is used by the fixture to set up the environment
     # Run the CLI command with no theme specified (should use current theme)
-    # In our test environment, the current theme won't exist, so we expect an error
-    exit_code, stdout, stderr = run_cli(["theme", "-vvv"], None)
+    # In our test environment, the current theme ('default') doesn't exist, so we expect an error
+    exit_code, stdout, stderr = run_cli(["theme"], None)
 
-    # Print debug output to help diagnose environment differences
-    print("\n---- DEBUG OUTPUT START ----")
-    print(f"STDOUT:\n{stdout}")
-    print(f"STDERR:\n{stderr}")
-    print(f"EXIT CODE: {exit_code}")
-    print("---- DEBUG OUTPUT END ----\n")
-
-    # Assert only the critical parts to get test passing while debugging
+    # The command should fail because the 'default' theme doesn't exist
     assert exit_code != 0, "Expected non-zero exit code for missing current theme"
     assert "Error" in stderr
+    assert "Theme 'default' not found" in stderr, f"Unexpected error message: {stderr}"
 
-    # Use a flexible assertion that works in both environments
-    assert any(phrase in stderr for phrase in ["Theme 'default' not found", "No current theme found"]), (
-        f"Unexpected error message: {stderr}"
-    )
-
-    # NOTE: We're not asserting empty stdout because debug logs go to stdout with -vvv
+    # No output should be generated for an error
+    assert stdout.strip() == "", "Expected empty stdout when theme not found"
 
 
 @pytest.mark.usefixtures("kde_home")
